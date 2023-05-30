@@ -79,21 +79,12 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/content"
-            android:layout_marginTop="20dp"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#fff">
-
-            <ListView
-                android:id="@+id/list_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:divider="@android:color/transparent"
-                android:dividerHeight="10.0sp" />
-
-        </LinearLayout>
+            android:layout_marginTop="20dp"
+            tools:listitem="@layout/row_item_main" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
