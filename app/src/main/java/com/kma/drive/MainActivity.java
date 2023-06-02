@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         listSanPham.add(new SanPham("Folder 3", R.drawable.folder_shared));
         sanPhamAdapter = new SanPhamAdapter(getApplicationContext(), listSanPham);
         recyclerView.setAdapter(sanPhamAdapter);
-        hideNavigationBar();
+//        hideNavigationBar();
     }
 
     private void hideNavigationBar() {
