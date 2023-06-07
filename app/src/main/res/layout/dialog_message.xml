@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/background_login"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/register_dialog_height">
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:layout_marginBottom="16dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/bt_confirm_message"
+        android:layout_width="@dimen/button_confirm_code"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_parent"
+        android:text="@string/text_button_confirm_code"
+        android:textColor="@color/white" />
+
+    <TextView
+        android:layout_above="@id/bt_confirm_message"
+        android:gravity="center"
+        android:id="@+id/tv_dialog_message"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:textColor="@color/black"
+        android:textStyle="bold" />
+</RelativeLayout>

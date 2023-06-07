@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_login">
+
+    <TextView
+        android:id="@+id/tv_title_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:text="@string/title_login"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:lines="@integer/line_of_edittext"
+        android:textColor="@color/black"
+        android:id="@+id/et_account_login"
+        android:layout_width="@dimen/edit_text_width"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/edittext_account"
+        android:hint="@string/hint_account_input"
+        android:textColorHint="@color/gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_title_login" />
+
+    <EditText
+        android:inputType="textPassword"
+        android:lines="@integer/line_of_edittext"
+        android:textColor="@color/black"
+        android:id="@+id/et_password_login"
+        android:layout_width="@dimen/edit_text_width"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/edittext_password"
+        android:hint="@string/hint_password_input"
+        android:textColorHint="@color/gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/et_account_login" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bt_login"
+        android:layout_width="@dimen/button_login"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/button_parent_effect"
+        android:text="@string/title_login"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/et_password_login" />
+
+    <TextView
+        android:textColor="@color/gray"
+        android:id="@+id/tv_register_account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:clickable="true"
+        android:text="@string/register_account"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,4 +1,4 @@
-package com.kma.drive;
+package com.kma.drive.adapter;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import com.kma.drive.R;
 
 public class DataAdapter extends BaseAdapter {
     private Activity activity;
