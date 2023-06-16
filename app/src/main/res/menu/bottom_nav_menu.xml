@@ -3,9 +3,18 @@
     <item
         android:id="@+id/footer_home"
         android:icon="@drawable/ic_home"
-        android:title="Trang chu" />
+        android:title="Trang chủ" />
     <item
         android:id="@+id/footer_folder"
-        android:icon="@drawable/ic_home"
-        android:title="Trang chu" />
+        android:icon="@drawable/ic_folder"
+        android:title="Tệp" />
+    <item
+        android:id="@+id/footer_favorite"
+        android:icon="@drawable/ic_favorite"
+        android:title="Yêu thích" />
+    <item
+        android:id="@+id/footer_share"
+        android:icon="@drawable/ic_supervite_user"
+        android:title="Được chia sẻ" />
+
 </menu>

@@ -1,24 +1,22 @@
 package com.kma.drive;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
     RecyclerView recyclerView;
     ArrayList<SanPham> listSanPham;
@@ -47,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 //        hideNavigationBar();
 
         // switch tab when click menu button
-        ImageButton menuButton  = (ImageButton) findViewById(R.id.btn_menu);
+        ImageButton menuButton = (ImageButton) findViewById(R.id.btn_menu);
         menuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -55,33 +53,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        // Footer main
-        LinearLayout linearLayoutFooter = findViewById(R.id.footer);
-        ImageView imageViewHome = new ImageView(this);
-        imageViewHome.setImageResource(R.drawable.ic_home);
-        TextView textViewHome = new TextView(this);
-        textViewHome.setText("Trang chủ");
-        imageViewHome.setMaxWidth(40);
-        imageViewHome.setMaxHeight(40);
-        textViewHome.setMaxWidth(40);
-        textViewHome.setMaxHeight(40);
-        ImageView imageViewFolder = new ImageView(this);
-        imageViewFolder.setImageResource(R.drawable.ic_folder);
-        TextView textViewFolder = new TextView(this);
-        textViewFolder.setText("Tệp");
-        imageViewFolder.setMaxWidth(40);
-        imageViewFolder.setMaxHeight(40);
-        textViewFolder.setMaxWidth(40);
-        textViewFolder.setMaxHeight(40);
-        CustomView customView = new CustomView(this, imageViewHome,textViewHome);
-        customView.getLayoutParams().width = 60;
-        customView.getLayoutParams().height = 60;
-        CustomView customView1 = new CustomView(this, imageViewFolder,textViewFolder);
-        customView1.getLayoutParams().width = 60;
-        customView1.getLayoutParams().height = 60;
-        linearLayoutFooter.addView(customView);
-        linearLayoutFooter.addView(customView1);
+        // bottom navigation
+        BottomNavigationView bottomNavigationMenu = findViewById(R.id.bottomNavigationMenu);
+        bottomNavigationMenu.setOnNavigationItemSelectedListener(this);
+        bottomNavigationMenu.setSelectedItemId(R.id.footer_home);
     }
 
     private void hideNavigationBar() {
@@ -92,5 +67,17 @@ public class MainActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         );
+    }
+
+    FirstFragment firstFragment = new FirstFragment();
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.footer_home:
+                getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, firstFragment).commit();
+                return true;
+        }
+        return false;
     }
 }
