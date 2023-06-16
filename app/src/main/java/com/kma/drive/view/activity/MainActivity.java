@@ -11,11 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.Toast;
 
-import com.kma.drive.adapter.DataAdapter;
 import com.kma.drive.R;
 import com.kma.drive.callback.FragmentCallback;
 import com.kma.drive.common.Constant;
