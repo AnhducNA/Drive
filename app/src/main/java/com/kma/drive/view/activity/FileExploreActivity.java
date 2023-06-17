@@ -14,7 +14,10 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kma.drive.R;
 import com.kma.drive.common.Constant;
+import com.kma.drive.view.fragment.FavoriteFilesFragment;
+import com.kma.drive.view.fragment.FilesFragment;
 import com.kma.drive.view.fragment.HomeAppFragment;
+import com.kma.drive.view.fragment.SharedFilesFragment;
 
 public class FileExploreActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
     public static final String HOME_APP_FRAG_NAME = "HOME APP FRAGMENT";
@@ -42,12 +45,21 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                 break;
             }
             case R.id.footer_favorite: {
+                FavoriteFilesFragment favoriteFilesFragment = new FavoriteFilesFragment();
+                transactionFragment(R.id.main_app_container, favoriteFilesFragment, true, true, HOME_APP_FRAG_NAME,
+                        Constant.NO_ANIMATION, Constant.NO_ANIMATION, Constant.NO_ANIMATION, Constant.NO_ANIMATION);
                 break;
             }
             case R.id.footer_folder: {
+                FilesFragment filesFragment = new FilesFragment();
+                transactionFragment(R.id.main_app_container, filesFragment, true, true, HOME_APP_FRAG_NAME,
+                        Constant.NO_ANIMATION, Constant.NO_ANIMATION, Constant.NO_ANIMATION, Constant.NO_ANIMATION);
                 break;
             }
             case R.id.footer_share: {
+                SharedFilesFragment sharedFilesFragment = new SharedFilesFragment();
+                transactionFragment(R.id.main_app_container, sharedFilesFragment, true, true, HOME_APP_FRAG_NAME,
+                        Constant.NO_ANIMATION, Constant.NO_ANIMATION, Constant.NO_ANIMATION, Constant.NO_ANIMATION);
                 break;
             }
         }
