@@ -1,17 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".MainActivity">
+    tools:context=".view.activity.LoginActivity">
+
+    <FrameLayout
+        android:id="@+id/flFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:orientation="vertical"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
+        app:layout_constraintBottom_toTopOf="@id/footer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="16dp"
         tools:layout_editor_absoluteY="354dp">
 
@@ -20,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
-            android:background="#AFF2AA"
+            android:background="@drawable/bg_rounded_rectangle_purple"
             android:gravity="center_vertical|center_horizontal|center"
             android:orientation="horizontal">
 
@@ -48,62 +61,29 @@
 
         </LinearLayout>
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:gravity="center_horizontal"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:layout_height="fill_parent"
+            android:id="@+id/main_app_container"/>
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:backgroundTint="@color/white"
-                android:gravity="center"
-                android:text="Drive của tôi"
-                android:textColor="#0D47A1"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+    </LinearLayout>
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:backgroundTint="@color/white"
-                android:gravity="center"
-                android:text="Ảnh"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-        </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerview"
+    <LinearLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#e3e3e3"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigationMenu"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            tools:listitem="@layout/row_item_main" />
-
-        <LinearLayout
-            android:id="@+id/footer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#e3e3e3"
-            android:orientation="horizontal">
-
-            <com.google.android.material.bottomnavigation.BottomNavigationView
-                android:layout_width="match_parent"
-                android:id="@+id/bottomNavigationView"
-                android:layout_height="75dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:menu="@menu/bottom_nav_menu"
-                />
-        </LinearLayout>
-
+            android:layout_height="75dp"
+            app:menu="@menu/bottom_nav_menu" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -208,6 +208,7 @@ public class RegisterFragment extends BaseAbstractFragment{
                                     mRegisterSuccess = (mess.equals(getString(R.string.message_register_success)));
                                     Util.getMessageDialog(mContext.get(),mess,()->{
                                         if (mRegisterSuccess) {
+                                            dialog.cancel();
                                             mCallback.doAnOrder(ORDER_REGISTER_DONE);
                                         }
                                     }).show();

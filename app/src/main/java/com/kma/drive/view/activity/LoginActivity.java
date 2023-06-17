@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -16,19 +15,17 @@ import com.kma.drive.R;
 import com.kma.drive.callback.FragmentCallback;
 import com.kma.drive.common.Constant;
 import com.kma.drive.view.fragment.BaseAbstractFragment;
-import com.kma.drive.view.fragment.HomeScreenFragment;
 import com.kma.drive.view.fragment.LoginFragment;
 import com.kma.drive.view.fragment.RegisterFragment;
 
-public class MainActivity extends AppCompatActivity implements FragmentCallback {
+public class LoginActivity extends AppCompatActivity implements FragmentCallback {
     private BaseAbstractFragment mLoginFragment;
     private BaseAbstractFragment mRegisterFragment;
-    private BaseAbstractFragment mHomeScreenFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
+        setContentView(R.layout.login_activity);
         //TODO: man dau tien nen tao them splash screen nhung tam thoi vao man login truoc
         mLoginFragment = new LoginFragment();
         mLoginFragment.setCallback(this);
@@ -79,11 +76,11 @@ public class MainActivity extends AppCompatActivity implements FragmentCallback 
                 break;
             }
             case LoginFragment.ORDER_LOGIN_SUCCESS: {
-                mHomeScreenFragment = new HomeScreenFragment();
-                mHomeScreenFragment.setCallback(this);
-                transactionFragment(R.id.main_container,
-                        mHomeScreenFragment, true, true,
-                        R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_left, R.anim.exit_to_right);
+                Intent intent = new Intent(this, FileExploreActivity.class);
+                //TODO set user data can thiet o day truoc khi start activity
+                startActivity(intent);
+                // Sau khi start xong thi activity nay khong con nhiem vu nua, kill
+                this.finish();
                 break;
             }
             case RegisterFragment.ORDER_REGISTER_DONE: {
