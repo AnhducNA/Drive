@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="button_login">200dp</dimen>
+    <dimen name="button_confirm_code">150dp</dimen>
+    <dimen name="avatar_register_size">100dp</dimen>
+    <dimen name="register_dialog_bar_height">20dp</dimen>
+    <dimen name="register_dialog_height">200dp</dimen>
+    <dimen name="edit_text_width">300dp</dimen>
+</resources>

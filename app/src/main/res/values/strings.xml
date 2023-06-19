@@ -1,5 +1,21 @@
 <resources>
     <string name="app_name">Drive</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hint_account_input">tài khoản</string>
+    <string name="hint_password_input">mật khẩu</string>
+    <string name="title_login">Đăng nhập</string>
+    <string name="register_account"><u>Chưa có tài khoản? Đăng ký</u></string>
+    <string name="title_register">Đăng ký</string>
+    <string name="hint_password_confirm_input">Xác nhận mật khẩu</string>
+    <string name="hint_email_input">Email</string>
+    <string name="hint_username_input">Họ tên</string>
+    <string name="error_on_empty_input">Không được bỏ trống</string>
+    <string name="error_on_username_length">Độ dài trong 1–255</string>
+    <string name="error_on_account_length">Độ dài trong 6–255</string>
+    <string name="error_on_password_length">Độ dài trong 6–255</string>
+    <string name="error_on_confirm_alike">Mật khẩu không khớp</string>
+    <string name="message_confirm_register_dialog">Mã xác nhận đã được gửi đến mail của bạn, vui lòng kiểm tra</string>
+    <string name="text_button_confirm_code">Xác nhận</string>
+    <string name="text_button_cancel_code">Hủy bỏ</string>
+    <string name="message_register_success">Tạo tài khoản thành công</string>
+    <string name="message_login_failed">Đăng nhập thất bại</string>
 </resources>
