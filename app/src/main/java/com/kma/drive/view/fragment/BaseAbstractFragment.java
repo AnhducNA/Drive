@@ -39,24 +39,6 @@ public abstract class BaseAbstractFragment extends Fragment{
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(getLayout(), container, false);
-        // 1. get a reference to recyclerView
-        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.home_recyclerView);
-        // 2. set layoutManger
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        // this is data from recycler view
-        ArrayList<SanPham> listSanPham  = new ArrayList<>();
-        listSanPham.add( new SanPham("Folder1", R.drawable.ic_folder));
-        listSanPham.add( new SanPham("Folder1", R.drawable.ic_folder));
-        listSanPham.add( new SanPham("Folder1", R.drawable.folder_shared));
-        listSanPham.add( new SanPham("Folder1", R.drawable.folder_shared));
-
-        // 3. create an adapter
-        SanPhamAdapter mAdapter = new SanPhamAdapter(this.getContext(), listSanPham);
-        // 4. set adapter
-        recyclerView.setAdapter(mAdapter);
-        // 5. set item animator to DefaultAnimator
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-
         return rootView;
     }
 
