@@ -1,8 +1,6 @@
 package com.kma.drive.dto;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
-public class UserLoginDto {
+ public class UserLoginDto {
     private String account;
     private String password;
 

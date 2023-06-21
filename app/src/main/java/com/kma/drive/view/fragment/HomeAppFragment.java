@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kma.drive.R;
-import com.kma.drive.adapter.SanPhamAdapter;
+import com.kma.drive.adapter.FileMainAdapter;
 import com.kma.drive.model.SanPham;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class HomeAppFragment extends BaseAbstractFragment{
         listSanPham.add( new SanPham("Folder1", R.drawable.folder_shared));
 
         // 3. create an adapter
-        SanPhamAdapter mAdapter = new SanPhamAdapter(this.getContext(), listSanPham);
+        FileMainAdapter mAdapter = new FileMainAdapter(this.getContext(), listSanPham);
         // 4. set adapter
         recyclerView.setAdapter(mAdapter);
         // 5. set item animator to DefaultAnimator

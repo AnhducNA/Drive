@@ -16,13 +16,13 @@ import com.kma.drive.model.SanPham;
 
 import java.util.ArrayList;
 
-public class SanPhamAdapter extends RecyclerView.Adapter<SanPhamAdapter.ViewHolder> {
+public class FileFolderAdapter extends RecyclerView.Adapter<FileFolderAdapter.ViewHolder> {
     private String TAG = "Duc";
 
     Context context;
     ArrayList<SanPham> listSanPham;
 
-    public SanPhamAdapter(Context context, ArrayList<SanPham> listSanPham) {
+    public FileFolderAdapter(Context context, ArrayList<SanPham> listSanPham) {
         this.context = context;
         this.listSanPham = listSanPham;
     }
@@ -31,7 +31,7 @@ public class SanPhamAdapter extends RecyclerView.Adapter<SanPhamAdapter.ViewHold
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // gán view
         Log.d(TAG, "onCreateViewHolder: ");
-        View view = LayoutInflater.from(context).inflate(R.layout.row_item_main, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.row_item_folder, parent, false);
         return new ViewHolder(view);
     }
 
@@ -48,7 +48,6 @@ public class SanPhamAdapter extends RecyclerView.Adapter<SanPhamAdapter.ViewHold
     public int getItemCount() {
         return listSanPham.size(); // trả item tại vị trí postion
     }
-
     class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imgAvatar;
         TextView txtTenSanPham;
@@ -56,8 +55,8 @@ public class SanPhamAdapter extends RecyclerView.Adapter<SanPhamAdapter.ViewHold
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             // Ánh xạ view
-            imgAvatar = itemView.findViewById(R.id.imgAvatar);
-            txtTenSanPham = itemView.findViewById(R.id.txtTenSanPham);
+            imgAvatar = itemView.findViewById(R.id.imgAvatarFolder);
+            txtTenSanPham = itemView.findViewById(R.id.txtTenSanPhamFolder);
         }
     }
 }

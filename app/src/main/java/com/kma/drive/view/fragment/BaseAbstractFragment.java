@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kma.drive.R;
-import com.kma.drive.adapter.SanPhamAdapter;
 import com.kma.drive.callback.FragmentCallback;
 import com.kma.drive.model.SanPham;
 import com.kma.drive.util.HttpRequestHelper;
