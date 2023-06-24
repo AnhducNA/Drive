@@ -48,7 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:hint="Search"
+                android:hint="Tìm kiếm"
                 android:inputType="text"
                 android:scaleType="center" />
 
@@ -62,12 +62,23 @@
         </LinearLayout>
 
         <FrameLayout
+            android:id="@+id/main_app_container"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/main_app_container"/>
+            android:layout_height="fill_parent" />
 
     </LinearLayout>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:src="@drawable/ic_add"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toTopOf="@id/footer"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <LinearLayout
         android:id="@+id/footer"

@@ -19,18 +19,17 @@
 
         <ImageView
             android:id="@+id/imgAvatar"
+            android:layout_centerVertical="true"
             android:layout_width="30dp"
             android:layout_height="35dp"
-            android:layout_centerVertical="true"
             android:src="@drawable/ic_folder" />
-        `
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginStart="15dp"
             android:layout_toEndOf="@+id/imgAvatar"
+            android:layout_marginStart="15dp"
             android:orientation="vertical">
 
             <TextView
@@ -52,22 +51,14 @@
 
         <ImageButton
             android:id="@+id/ibt_menu_function"
+            android:layout_centerVertical="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
             android:background="@android:color/transparent"
             android:scaleType="center"
             android:src="@drawable/ic_menu_item" />
+
     </RelativeLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="5dp"
-        android:background="#E6E6E6"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

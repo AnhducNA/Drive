@@ -1,10 +1,13 @@
 package com.kma.drive.view.activity;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,6 +18,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kma.drive.R;
 import com.kma.drive.callback.AwareDataStateChange;
 import com.kma.drive.callback.FragmentCallback;
@@ -51,6 +55,8 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
     private UserSession mUserSession;
     protected HttpRequestHelper mRequestHelper;
 
+    private FloatingActionButton mAddFab;
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,7 +113,13 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
             }
         });
 
-        // Bottom sheet dialog
+        mAddFab = findViewById(R.id.add_fab);
+        mAddFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showBottomSheetDialog();
+            }
+        });
     }
 
     private void notifyFragmentDataDone() {
@@ -116,6 +128,17 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
         if (fragment != null ) {
             ((AwareDataStateChange) fragment).onDataLoadingFinished();
         }
+    }
+
+    private void showBottomSheetDialog() {
+
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        bottomSheetDialog.setContentView(R.layout.add_new_bottom_sheet_dialog);
+
+        LinearLayout folder = bottomSheetDialog.findViewById(R.id.add_new_folder_main);
+        LinearLayout file = bottomSheetDialog.findViewById(R.id.add_new_file_main);
+        LinearLayout useCamera = bottomSheetDialog.findViewById(R.id.use_camera_main);
+        bottomSheetDialog.show();
     }
 
     @Override

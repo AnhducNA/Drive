@@ -38,8 +38,8 @@ public abstract class BaseAbstractFragment extends Fragment{
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(getLayout(), container, false);
-        return v;
+        View rootView = inflater.inflate(getLayout(), container, false);
+        return rootView;
     }
 
     @Override
