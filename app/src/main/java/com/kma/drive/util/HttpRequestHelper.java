@@ -22,8 +22,9 @@ public class HttpRequestHelper {
     private Retrofit mRetrofit;
     private ApiService mApiService;
 
-    public HttpRequestHelper() {
+    public HttpRequestHelper(String token) {
         OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(new JwtInterceptor(token))
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .readTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(10, TimeUnit.SECONDS).build();
@@ -47,6 +48,16 @@ public class HttpRequestHelper {
 
     public void login(UserLoginDto user, Callback<ResponseBody> callback) {
         Call<ResponseBody> call = mApiService.postLogin(user);
+        call.enqueue(callback);
+    }
+
+    public void getAllFilesForUser(int userId, Callback<ResponseBody> callback) {
+        Call<ResponseBody> call = mApiService.getFilesByUserId(String.valueOf(userId));
+        call.enqueue(callback);
+    }
+
+    public void downloadFile(long fileId, Callback<ResponseBody> callback) {
+        Call<ResponseBody> call = mApiService.downloadFileById(fileId);
         call.enqueue(callback);
     }
 }

@@ -4,8 +4,9 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.kma.drive.R;
+import com.kma.drive.callback.AwareDataStateChange;
 
-public class SharedFilesFragment extends BaseAbstractFragment{
+public class SharedFilesFragment extends BaseAbstractFragment implements AwareDataStateChange {
     @Override
     protected int getLayout() {
         return R.layout.shared_files_fragment;
@@ -13,6 +14,11 @@ public class SharedFilesFragment extends BaseAbstractFragment{
 
     @Override
     protected void doOnViewCreated(View view, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onDataLoadingFinished() {
 
     }
 }

@@ -11,6 +11,7 @@ import androidx.appcompat.widget.AppCompatButton;
 
 import com.kma.drive.R;
 import com.kma.drive.callback.Function;
+import com.kma.drive.common.Constant;
 
 import java.io.ByteArrayOutputStream;
 
@@ -48,6 +49,27 @@ public class Util {
         });
 
         return dialog;
+    }
+
+    public static int getIconFileFromType(String type) {
+        switch (type) {
+            case Constant.FileType.PPTX: {
+                return R.drawable.icon_pptx_file;
+            }
+            case Constant.FileType.TXT:
+            case Constant.FileType.DOC: {
+                return R.drawable.icon_txt_file;
+            }
+            case Constant.FileType.PDF: {
+                return R.drawable.icon_pdf_file;
+            }
+            case Constant.FileType.FOLDER: {
+                return R.drawable.ic_folder;
+            }
+            default: {
+                return R.drawable.icon_unknown_file;
+            }
+        }
     }
 
 }

@@ -4,8 +4,9 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.kma.drive.R;
+import com.kma.drive.callback.AwareDataStateChange;
 
-public class HomeAppFragment extends BaseAbstractFragment{
+public class HomeAppFragment extends BaseAbstractFragment implements AwareDataStateChange {
 
     @Override
     protected int getLayout() {
@@ -14,6 +15,11 @@ public class HomeAppFragment extends BaseAbstractFragment{
 
     @Override
     protected void doOnViewCreated(View view, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onDataLoadingFinished() {
 
     }
 }

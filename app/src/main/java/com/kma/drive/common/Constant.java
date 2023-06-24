@@ -12,4 +12,17 @@ public class Constant {
     public static final String RESPONSE_STATUS = "status";
     public static final String RESPONSE_MESSAGE = "message";
     public static final String RESPONSE_TOKEN = "token";
+
+    // Request params API
+    public static final String PARAM_USER_ID = "userId";
+    public static final String PARAM_FILE_ID = "fileId";
+
+    public class FileType {
+        public static final String PDF = "pdf";
+        public static final String DOC = "doc";
+        public static final String TXT = "txt";
+        public static final String PPTX = "pptx";
+        public static final String UNKNOWN = "unknown";
+        public static final String FOLDER = "folder";
+    }
 }

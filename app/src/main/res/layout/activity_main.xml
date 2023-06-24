@@ -86,4 +86,5 @@
             android:layout_height="75dp"
             app:menu="@menu/bottom_nav_menu" />
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

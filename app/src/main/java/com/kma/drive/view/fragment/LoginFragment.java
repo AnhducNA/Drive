@@ -11,14 +11,16 @@ import androidx.appcompat.widget.AppCompatButton;
 
 import com.kma.drive.R;
 import com.kma.drive.common.Constant;
+import com.kma.drive.dto.UserDto;
 import com.kma.drive.dto.UserLoginDto;
-import com.kma.drive.util.HttpRequestHelper;
+import com.kma.drive.session.UserSession;
 import com.kma.drive.util.Util;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.sql.Date;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -60,14 +62,21 @@ public class LoginFragment extends BaseAbstractFragment{
             mLoginButton.setEnabled(false);
 
             UserLoginDto userLoginDto = new UserLoginDto(account, password);
-            Log.d("MinhNTn", ":" + password + "," + userLoginDto.getPassword());
             mRequestHelper.login(userLoginDto, new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
                         try {
+                            // Login thanh cong fetch data user thanh cong nay va luu lam session hien tai
                             JSONObject object = new JSONObject(response.body().string());
-                            String token = object.getString(Constant.RESPONSE_TOKEN);
+                            UserSession userSession = UserSession.getInstance();
+                            UserDto userDto = new UserDto(object.getString(UserDto.JWT),
+                                    object.getString(UserDto.USER_NAME),
+                                    new Date(10L),
+                                    object.getString(UserDto.EMAIL),
+                                    object.getString(UserDto.AVATAR),
+                                    object.getInt(UserDto.ID));
+                            userSession.setUser(userDto);
                             mCallback.doAnOrder(ORDER_LOGIN_SUCCESS);
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
@@ -81,9 +90,9 @@ public class LoginFragment extends BaseAbstractFragment{
                             Util.getMessageDialog(mContext.get(), mess, null).show();
                             mLoginButton.setEnabled(true);
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+
                         } catch (JSONException e) {
-                            throw new RuntimeException(e);
+
                         }
                     }
                 }
