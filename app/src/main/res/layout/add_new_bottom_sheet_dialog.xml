@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/add_new_model_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -23,40 +22,12 @@
             android:textStyle="bold" />
 
         <LinearLayout
-            android:id="@+id/add_new_folder_main"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?android:attr/selectableItemBackground"
-            android:orientation="horizontal"
-            android:padding="8dp">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_margin="8dp"
-                android:src="@drawable/ic_folder" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:padding="8dp"
-                android:text="Tệp"
-                android:textColor="@color/black"
-                android:textSize="16sp" />
-        </LinearLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="5dp"
-            android:background="#E6E6E6" />
-        <LinearLayout
             android:id="@+id/add_new_file_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             android:orientation="horizontal"
             android:padding="8dp">
 
@@ -71,22 +42,60 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:padding="8dp"
+                android:text="Tải lên"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:background="#E6E6E6"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/add_new_folder_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_margin="8dp"
+                android:src="@drawable/ic_folder" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="8dp"
                 android:text="Thư mục"
                 android:textColor="@color/black"
                 android:textSize="16sp" />
         </LinearLayout>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="5dp"
-            android:background="#E6E6E6" />
+            android:background="#E6E6E6"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
         <LinearLayout
             android:id="@+id/use_camera_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             android:orientation="horizontal"
             android:padding="8dp">
 

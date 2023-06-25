@@ -52,6 +52,38 @@
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
+        android:id="@+id/tv_move"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawablePadding="16dp"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:text="@string/function_item_move"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:drawableStartCompat="@drawable/ic_folder" />
+
+    <TextView
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:id="@+id/tv_rename"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawablePadding="16dp"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:text="@string/function_item_rename"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:drawableStartCompat="@drawable/icon_edit" />
+
+    <TextView
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
         android:id="@+id/tv_delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

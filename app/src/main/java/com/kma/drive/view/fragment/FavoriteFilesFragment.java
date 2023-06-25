@@ -1,9 +1,11 @@
 package com.kma.drive.view.fragment;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import androidx.annotation.RequiresApi;
@@ -15,6 +17,8 @@ import com.kma.drive.adapter.FileAdapter;
 import com.kma.drive.callback.AwareDataStateChange;
 import com.kma.drive.callback.ItemFileClickListener;
 import com.kma.drive.dto.FileDto;
+import com.kma.drive.model.FileModel;
+import com.kma.drive.view.activity.OpenFileActivity;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,7 +37,8 @@ public class FavoriteFilesFragment extends BaseAbstractFragment implements Aware
     private RecyclerView mFavoriteFilesRecyclerView;
     private FileAdapter mFileAdapter;
     private ProgressBar mLoadingDataProgressBar;
-    private List<FileDto> mFavoriteFiles;
+    private LinearLayout mEmptyFolderLinearLayout;
+    private List<FileModel> mFavoriteFiles;
 
     @Override
     protected int getLayout() {
@@ -45,6 +50,7 @@ public class FavoriteFilesFragment extends BaseAbstractFragment implements Aware
     protected void doOnViewCreated(View view, Bundle bundle) {
         mFavoriteFilesRecyclerView = view.findViewById(R.id.rv_favorite_files);
         mLoadingDataProgressBar = view.findViewById(R.id.pb_loading_data);
+        mEmptyFolderLinearLayout = view.findViewById(R.id.layout_empty_folder);
         mFavoriteFiles = new ArrayList<>();
 
         if (mUserSession.isDataFetching()) {
@@ -58,6 +64,15 @@ public class FavoriteFilesFragment extends BaseAbstractFragment implements Aware
         mFavoriteFilesRecyclerView.setAdapter(mFileAdapter);
 
         getFavoriteFiles();
+        setVisibleEmptyView();
+    }
+
+    private void setVisibleEmptyView() {
+        if (mFavoriteFiles.isEmpty()) {
+            mEmptyFolderLinearLayout.setVisibility(View.VISIBLE);
+        } else {
+            mEmptyFolderLinearLayout.setVisibility(View.INVISIBLE);
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -65,6 +80,31 @@ public class FavoriteFilesFragment extends BaseAbstractFragment implements Aware
     public void onDataLoadingFinished() {
         getFavoriteFiles();
         mLoadingDataProgressBar.setVisibility(View.INVISIBLE);
+        setVisibleEmptyView();
+    }
+
+    @Override
+    public void onDataStateChanged() {
+        if (mFileAdapter != null) {
+            for (int i = 0; i < mFavoriteFiles.size(); i++) {
+                if (!mFavoriteFiles.get(i).isFavorite()) {
+                    mFavoriteFiles.remove(mFavoriteFiles.get(i));
+                }
+            }
+            mFileAdapter.notifyDataSetChanged();
+            setVisibleEmptyView();
+        }
+    }
+
+    @Override
+    public void onDataDeleted(FileModel fileModel) {
+        mFavoriteFiles.remove(fileModel);
+        onDataStateChanged();
+    }
+
+    @Override
+    public void onDataCreated(FileModel fileModel) {
+        // file moi them vao mac dinh khong phai favorite nen khong can notifydatachage()
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -82,45 +122,19 @@ public class FavoriteFilesFragment extends BaseAbstractFragment implements Aware
 
     @Override
     public void open(long id) {
-        final FileDto fileDto = getFileById(id);
-        if (fileDto == null) {
+        final FileModel fileModel = getFileById(id);
+        if (fileModel == null) {
             //TODO do something here
             return;
         }
         //TODO nen check cache xem file nay da duoc tai ve hay chua
-        mRequestHelper.downloadFile(id, new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    InputStream inputStream = response.body().byteStream();
-
-                    File file = new File(mContext.get().getFilesDir(), fileDto.getEntireFileName());
-                    try {
-                        FileOutputStream fos = new FileOutputStream(file);
-                        byte[] buffer = new byte[4096];
-                        int bytesRead;
-                        while ((bytesRead = inputStream.read(buffer)) != -1) {
-                            fos.write(buffer, 0, bytesRead);
-                        }
-                        fos.flush();
-                        fos.close();
-                    } catch (FileNotFoundException e) {
-                        throw new RuntimeException(e);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-            }
-        });
+        Intent intent = new Intent(mContext.get(), OpenFileActivity.class);
+        intent.putExtra(OpenFileActivity.EXTRA_FILE_OPEN, fileModel);
+        mContext.get().startActivity(intent);
     }
 
-    public FileDto getFileById(long id) {
-        for (FileDto fileDto: mFavoriteFiles) {
+    public FileModel getFileById(long id) {
+        for (FileModel fileDto: mFavoriteFiles) {
             if (fileDto.getId() == id) {
                 return fileDto;
             }

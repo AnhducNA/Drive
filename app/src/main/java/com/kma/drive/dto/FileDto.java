@@ -1,7 +1,5 @@
 package com.kma.drive.dto;
 
-import java.sql.Date;
-
 public class FileDto {
     public static final String ID = "id";
     public static final String FILE_NAME = "fileName";
@@ -9,21 +7,24 @@ public class FileDto {
     public static final String FAVORITE = "favorite";
     public static final String TYPE = "type";
     public static final String OWNER = "owner";
+    public static final String LOCATION = "location";
 
     private Long id;
     private String fileName;
-    private Date date;
+    private String date;
     private boolean favorite;
     private String type;
     private long owner;
+    private String location;
 
-    public FileDto(Long id, String fileName, Date date, boolean favorite, String type, long owner) {
+    public FileDto(Long id, String fileName, String date, boolean favorite, String type, long owner, String location) {
         this.id = id;
         this.fileName = fileName;
         this.date = date;
         this.favorite = favorite;
         this.type = type;
         this.owner = owner;
+        this.location = location;
     }
 
     public Long getId() {
@@ -42,11 +43,11 @@ public class FileDto {
         this.fileName = fileName;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
@@ -72,6 +73,14 @@ public class FileDto {
 
     public void setOwner(long owner) {
         this.owner = owner;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public String getEntireFileName() {

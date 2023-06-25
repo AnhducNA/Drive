@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -150,9 +152,12 @@ public class RegisterFragment extends BaseAbstractFragment{
                     } else {
                         try {
                             Util.getMessageDialog(mContext.get(),
-                                    response.errorBody().string(), () -> {
-                                        if (mRegisterSuccess) {
-                                            mCallback.back();
+                                    response.errorBody().string(), new Function() {
+                                        @Override
+                                        public void execute() {
+                                            if (mRegisterSuccess) {
+                                                mCallback.back();
+                                            }
                                         }
                                     }).show();
                         } catch (IOException e) {
@@ -166,7 +171,7 @@ public class RegisterFragment extends BaseAbstractFragment{
                     // TODO xu ly loi o day, tam thoi show dialog message o day
                     mRegisterButton.setEnabled(true);
                     Util.getMessageDialog(mContext.get(),
-                            t.getMessage(), () -> {}).show();
+                            t.getMessage(), null).show();
                 }
             });
         }
@@ -187,6 +192,7 @@ public class RegisterFragment extends BaseAbstractFragment{
 
     private Dialog getConfirmCodeDialog() {
         Dialog dialog = new Dialog(mContext.get());
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setContentView(R.layout.dialog_confirm_register_code);
         dialog.setCanceledOnTouchOutside(false);
 
@@ -206,10 +212,13 @@ public class RegisterFragment extends BaseAbstractFragment{
                                     JSONObject object = new JSONObject(response.body().string());
                                     String mess = object.getString(Constant.RESPONSE_MESSAGE);
                                     mRegisterSuccess = (mess.equals(getString(R.string.message_register_success)));
-                                    Util.getMessageDialog(mContext.get(),mess,()->{
-                                        if (mRegisterSuccess) {
-                                            dialog.cancel();
-                                            mCallback.doAnOrder(ORDER_REGISTER_DONE);
+                                    Util.getMessageDialog(mContext.get(), mess, new Function() {
+                                        @Override
+                                        public void execute() {
+                                            if (mRegisterSuccess) {
+                                                dialog.cancel();
+                                                mCallback.doAnOrder(ORDER_REGISTER_DONE);
+                                            }
                                         }
                                     }).show();
                                 } catch (IOException e) {
@@ -226,7 +235,7 @@ public class RegisterFragment extends BaseAbstractFragment{
                         public void onFailure(Call<ResponseBody> call, Throwable t) {
                             // TODO xu ly loi o day, tam thoi show dialog message o day
                             Util.getMessageDialog(mContext.get(),
-                                    t.getMessage(), () -> {}).show();
+                                    t.getMessage(), null).show();
                         }
                     });
         });

@@ -1,5 +1,7 @@
 package com.kma.drive.callback;
 
-public interface Function {
-    void execute();
+public abstract class Function {
+    public void execute(){}
+
+    public void execute(Object object){}
 }

@@ -1,13 +1,18 @@
 package com.kma.drive.util;
 
 
+import com.kma.drive.dto.FileDto;
 import com.kma.drive.dto.UserLoginDto;
 import com.kma.drive.dto.UserRegisterDto;
 import com.kma.drive.dto.VerifyCodeDto;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -58,6 +63,23 @@ public class HttpRequestHelper {
 
     public void downloadFile(long fileId, Callback<ResponseBody> callback) {
         Call<ResponseBody> call = mApiService.downloadFileById(fileId);
+        call.enqueue(callback);
+    }
+
+    public void saveFile(FileDto fileDto, Callback<ResponseBody> callback) {
+        Call<ResponseBody> call = mApiService.saveFile(fileDto);
+        call.enqueue(callback);
+    }
+
+    public void deleteFile(long fileId, Callback<ResponseBody> callback) {
+        Call<ResponseBody> call = mApiService.deleteFile(fileId);
+        call.enqueue(callback);
+    }
+
+    public void uploadFile(long fileId, File file, Callback<ResponseBody> callback) {
+        RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+        MultipartBody.Part part = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
+        Call<ResponseBody> call = mApiService.uploadFile(fileId, part);
         call.enqueue(callback);
     }
 }

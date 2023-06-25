@@ -1,16 +1,18 @@
 package com.kma.drive.session;
 
-import com.kma.drive.dto.FileDto;
 import com.kma.drive.dto.UserDto;
+import com.kma.drive.model.FileModel;
 
+import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class UserSession {
 
     private static UserSession userSession;
     private UserDto user;
-    private List<FileDto> files;
+    private List<FileModel> files;
     private boolean dataFetching; // cho biet data co dang duoc fetch tu phia server ve khong
 
     private UserSession() {
@@ -33,11 +35,11 @@ public class UserSession {
         this.user = user;
     }
 
-    public List<FileDto> getFiles() {
+    public List<FileModel> getFiles() {
         return files;
     }
 
-    public void setFiles(List<FileDto> files) {
+    public void setFiles(List<FileModel> files) {
         this.files = files;
     }
 
@@ -47,5 +49,15 @@ public class UserSession {
 
     public void setDataFetching(boolean dataFetching) {
         this.dataFetching = dataFetching;
+    }
+
+    public FileModel createNewFile(String fileName, String type) {
+        return new FileModel(null,
+                fileName,
+                new Date(Calendar.getInstance().getTimeInMillis()),
+                false,
+                type,
+                user.getId(),
+                null);
     }
 }

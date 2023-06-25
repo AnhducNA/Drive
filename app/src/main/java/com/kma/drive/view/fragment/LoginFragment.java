@@ -100,7 +100,7 @@ public class LoginFragment extends BaseAbstractFragment{
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     Util.getMessageDialog(mContext.get(),
-                            t.getMessage(), () -> {}).show();
+                            t.getMessage(), null).show();
                     mLoginButton.setEnabled(true);
                 }
             });

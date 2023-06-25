@@ -1,13 +1,16 @@
 package com.kma.drive.view.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,10 +25,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kma.drive.R;
 import com.kma.drive.callback.AwareDataStateChange;
 import com.kma.drive.callback.FragmentCallback;
+import com.kma.drive.callback.Function;
 import com.kma.drive.common.Constant;
 import com.kma.drive.dto.FileDto;
+import com.kma.drive.model.FileModel;
 import com.kma.drive.session.UserSession;
 import com.kma.drive.util.HttpRequestHelper;
+import com.kma.drive.util.Util;
+import com.kma.drive.view.custom.CircularImageView;
 import com.kma.drive.view.fragment.FavoriteFilesFragment;
 import com.kma.drive.view.fragment.FilesFragment;
 import com.kma.drive.view.fragment.HomeAppFragment;
@@ -35,10 +42,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
-import java.sql.Date;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -47,9 +54,20 @@ import retrofit2.Response;
 
 public class FileExploreActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, FragmentCallback {
     public static final String HOME_APP_FRAG_NAME = "HOME APP FRAGMENT";
+    public static final int REQUEST_IMAGE_CAPTURE_CODE = 101;
     // component
     private BottomNavigationView mBottomNavigationView;
+    // component cua bottom dialog file - start
     private BottomSheetDialog mBottomSheetDialog;
+    private TextView mTargetFileNameTextView;
+    private TextView mFavoriteFunctionTextView;
+    private TextView mChangeFileNameTextView;
+    private TextView mDeleteFileTextView;
+    // component cua bottom dialog - end
+    // component bottom dialog new file - start
+    private BottomSheetDialog mBottomSheetNewFileDialog;
+    // component bottom dialog new file - end
+    private CircularImageView mUserAvatarImageView;
 
     // etc
     private UserSession mUserSession;
@@ -63,9 +81,65 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
         setContentView(R.layout.activity_main);
 
         mUserSession = UserSession.getInstance();
-
+        // cai dat bottom sheet - start
         mBottomSheetDialog = new BottomSheetDialog(this);
         mBottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
+        mTargetFileNameTextView = mBottomSheetDialog.findViewById(R.id.tv_filename_current);
+        mFavoriteFunctionTextView = mBottomSheetDialog.findViewById(R.id.tv_favorite);
+        mChangeFileNameTextView = mBottomSheetDialog.findViewById(R.id.tv_rename);
+        mDeleteFileTextView = mBottomSheetDialog.findViewById(R.id.tv_delete);
+        // cai dat bottom sheet - end
+
+        //cai dat bottom sheet dialog new file - start
+        mBottomSheetNewFileDialog = new BottomSheetDialog(this);
+        mBottomSheetNewFileDialog.setContentView(R.layout.add_new_bottom_sheet_dialog);
+        LinearLayout folder = mBottomSheetNewFileDialog.findViewById(R.id.add_new_folder_main);
+        LinearLayout file = mBottomSheetNewFileDialog.findViewById(R.id.add_new_file_main);
+        LinearLayout useCamera = mBottomSheetNewFileDialog.findViewById(R.id.use_camera_main);
+        folder.setOnClickListener(view -> {
+            Util.getOptionInputTextDialog(FileExploreActivity.this,
+                    getString(R.string.title_dialog_new_folder), null, null, new Function() {
+                        @Override
+                        public void execute(Object object) {
+                            String folder = (String) object;
+                            FileModel temp = mUserSession.createNewFile(folder, Constant.FileType.FOLDER);
+                            FileDto fileDto = Util.convertToFileDto(temp);
+                            mRequestHelper.saveFile(fileDto, new Callback<ResponseBody>() {
+                                @Override
+                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                    if (response.isSuccessful()) {
+                                        try {
+                                            JSONObject file = new JSONObject(response.body().string());
+                                            FileDto tempDto = Util.convertFromJSON(file);
+                                            if (tempDto != null) {
+                                                temp.setId(tempDto.getId());
+                                                mUserSession.getFiles().add(temp);
+                                                ((AwareDataStateChange)getCurrentDisplayFragment()).onDataCreated(temp);
+                                            }
+                                        } catch (JSONException | IOException e) {
+                                            //TODO
+                                        }
+
+                                    } else {
+                                        Util.getMessageDialog(FileExploreActivity.this, response.body().toString(), null);
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                                }
+                            });
+                        }
+                    }).show();
+        });
+        useCamera.setOnClickListener(view -> {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(intent, REQUEST_IMAGE_CAPTURE_CODE);
+            }
+        });
+        //cai dat bottom sheet dialog new file - end
 
         mBottomNavigationView = findViewById(R.id.bottomNavigationMenu);
         mBottomNavigationView.setOnNavigationItemSelectedListener(this);
@@ -83,15 +157,17 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                         JSONArray array = new JSONArray(response.body().string());
                         for (int i = 0; i < array.length(); i++) {
                             JSONObject file = array.getJSONObject(i);
-                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
                             FileDto fileDto = new FileDto((long) file.getInt(FileDto.ID),
                                     file.getString(FileDto.FILE_NAME),
-                                    new Date(format.parse(file.getString(FileDto.DATE)).getTime()),
+                                    file.getString(FileDto.DATE),
                                     file.getBoolean(FileDto.FAVORITE),
                                     file.getString(FileDto.TYPE),
-                                    file.getLong(FileDto.OWNER));
-                            mUserSession.getFiles().add(fileDto);
+                                    file.getLong(FileDto.OWNER),
+                                    file.getString(FileDto.LOCATION));
+
+                            FileModel fileModel = Util.convertToFileModel(fileDto);
+                            mUserSession.getFiles().add(fileModel);
                         }
                         mUserSession.setDataFetching(false);
                         // Data fetch xong thi goi fragment dang hien thi load ra
@@ -114,31 +190,29 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
         });
 
         mAddFab = findViewById(R.id.add_fab);
-        mAddFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showBottomSheetDialog();
-            }
-        });
+        mAddFab.setOnClickListener(view -> showBottomSheetDialog());
+
+        // init avatar user
+        //TODO event click vao avatar
+        mUserAvatarImageView = findViewById(R.id.id_account);
+        mUserAvatarImageView.setImageBitmap(Util.convertBase64ToBitmap(mUserSession.getUser().getAvatar()));
     }
 
     private void notifyFragmentDataDone() {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        Fragment fragment = fragmentManager.findFragmentById(R.id.main_app_container);
+        Fragment fragment = getCurrentDisplayFragment();
         if (fragment != null ) {
             ((AwareDataStateChange) fragment).onDataLoadingFinished();
         }
     }
 
+    private Fragment getCurrentDisplayFragment() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment fragment = fragmentManager.findFragmentById(R.id.main_app_container);
+        return fragment;
+    }
+
     private void showBottomSheetDialog() {
-
-        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
-        bottomSheetDialog.setContentView(R.layout.add_new_bottom_sheet_dialog);
-
-        LinearLayout folder = bottomSheetDialog.findViewById(R.id.add_new_folder_main);
-        LinearLayout file = bottomSheetDialog.findViewById(R.id.add_new_file_main);
-        LinearLayout useCamera = bottomSheetDialog.findViewById(R.id.use_camera_main);
-        bottomSheetDialog.show();
+        mBottomSheetNewFileDialog.show();
     }
 
     @Override
@@ -147,6 +221,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
         switch (item.getItemId()) {
             case R.id.footer_home: {
                 HomeAppFragment homeAppFragment = new HomeAppFragment();
+                homeAppFragment.setCallback(this);
                 transactionFragment(R.id.main_app_container, homeAppFragment, true, true, HOME_APP_FRAG_NAME,
                         Constant.NO_ANIMATION, Constant.NO_ANIMATION, Constant.NO_ANIMATION, Constant.NO_ANIMATION);
                 break;
@@ -160,6 +235,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
             }
             case R.id.footer_folder: {
                 FilesFragment filesFragment = new FilesFragment();
+                filesFragment.setCallback(this);
                 transactionFragment(R.id.main_app_container, filesFragment, true, true, HOME_APP_FRAG_NAME,
                         Constant.NO_ANIMATION, Constant.NO_ANIMATION, Constant.NO_ANIMATION, Constant.NO_ANIMATION);
                 break;
@@ -216,11 +292,154 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
 
     @Override
     public void doAnOrderWithParams(int order, Object... objects) {
+        //TODO thuc hien viec update xong thi can update ca date modify
+        // Thuc hien chuc nang cua bottom sheet dialog
+        FileModel currentFile = (FileModel) objects[0];
+        mTargetFileNameTextView.setText(currentFile.getFileName());
+        if (currentFile.isFavorite()) {
+            mFavoriteFunctionTextView.setText(R.string.function_item_remove_favorite);
+        } else {
+            mFavoriteFunctionTextView.setText(R.string.function_item_add_favorite);
+        }
+        mFavoriteFunctionTextView.setOnClickListener(view -> {
+            FileDto dtoFile = Util.convertToFileDto(currentFile);
+            dtoFile.setFavorite(!dtoFile.isFavorite());
+            mRequestHelper.saveFile(dtoFile, new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        currentFile.setFavorite(!currentFile.isFavorite());
+                        if (currentFile.isFavorite()) {
+                            mFavoriteFunctionTextView.setText(R.string.function_item_remove_favorite);
+                        } else {
+                            mFavoriteFunctionTextView.setText(R.string.function_item_add_favorite);
+                        }
+                        Fragment fragment = getCurrentDisplayFragment();
+                        ((AwareDataStateChange) fragment).onDataStateChanged();
+                    } else {
+                        Util.getMessageDialog(FileExploreActivity.this, response.body().toString(), null);
+                    }
+                }
 
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                }
+            });
+            mBottomSheetDialog.hide();
+        });
+        mChangeFileNameTextView.setOnClickListener(view -> {
+            FileDto dtoFile = Util.convertToFileDto(currentFile);
+            Util.getOptionInputTextDialog(FileExploreActivity.this,
+                    getString(R.string.title_dialog_change_name_file), dtoFile.getFileName(), null, new Function() {
+                        @Override
+                        public void execute(Object object) {
+                            dtoFile.setFileName((String) object);
+                            mRequestHelper.saveFile(dtoFile, new Callback<ResponseBody>() {
+                                @Override
+                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                    if (response.isSuccessful()) {
+                                        currentFile.setFileName((String) object);
+                                        mTargetFileNameTextView.setText(currentFile.getFileName());
+                                        ((AwareDataStateChange)getCurrentDisplayFragment()).onDataStateChanged();
+                                    } else {
+                                        Util.getMessageDialog(FileExploreActivity.this, response.body().toString(), null);
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                    //TODO
+                                }
+                            });
+                        }
+                    }).show();
+        });
+        //TODO luc xoa file check xoa ca local nua
+        mDeleteFileTextView.setOnClickListener(view -> {
+            mRequestHelper.deleteFile(currentFile.getId(), new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        mUserSession.getFiles().remove(currentFile);
+                        ((AwareDataStateChange)getCurrentDisplayFragment()).onDataDeleted(currentFile);
+                    } else {
+                        Util.getMessageDialog(FileExploreActivity.this, response.body().toString(), null);
+                    }
+                    mBottomSheetDialog.hide();
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    mBottomSheetDialog.hide();
+                }
+            });
+        });
+        mBottomSheetDialog.show();
     }
 
     @Override
     public void back() {
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_CAPTURE_CODE) {
+                Bundle extras = data.getExtras();
+                Bitmap imageBitmap = (Bitmap) extras.get("data");
+                Util.getOptionInputImageDialog(this, getString(R.string.upload_image_file), imageBitmap, null, new Function() {
+                    @Override
+                    public void execute(Object object) {
+                        try {
+                            String name = Calendar.getInstance().getTimeInMillis() + "." + Constant.FileType.PNG;
+                            File image = Util.convertBitmapToFile(FileExploreActivity.this, imageBitmap, name);
+                            FileModel temp = mUserSession.createNewFile(name, Constant.FileType.PNG);
+                            mRequestHelper.saveFile(Util.convertToFileDto(temp), new Callback<ResponseBody>() {
+                                @Override
+                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                    if (response.isSuccessful()) {
+                                        try {
+                                            JSONObject object1 = new JSONObject(response.body().string());
+                                            FileDto fileDto = Util.convertFromJSON(object1);
+                                            temp.setId(fileDto.getId());
+                                            mRequestHelper.uploadFile(temp.getId(), image, new Callback<ResponseBody>() {
+                                                @Override
+                                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                                    if (response.isSuccessful()) {
+                                                        mUserSession.getFiles().add(temp);
+                                                        ((AwareDataStateChange)getCurrentDisplayFragment()).onDataCreated(temp);
+                                                    } else {
+                                                        Util.getMessageDialog(FileExploreActivity.this, response.body().toString(), null);
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                                                }
+                                            });
+                                        } catch (JSONException | IOException e) {
+                                            //
+                                        }
+                                    } else {
+                                        Util.getMessageDialog(FileExploreActivity.this, response.body().toString(), null);
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                                }
+                            });
+                        } catch (IOException e) {
+                            //TODO
+                        }
+                    }
+                }).show();
+            }
+        }
     }
 }
