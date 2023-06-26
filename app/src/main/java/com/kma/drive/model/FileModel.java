@@ -19,8 +19,9 @@ public class FileModel implements Parcelable {
     private String type;
     private long owner;
     private String location;
+    private long parentId;
 
-    public FileModel(Long id, String fileName, Date date, boolean favorite, String type, long owner, String location) {
+    public FileModel(Long id, String fileName, Date date, boolean favorite, String type, long owner, String location, long parentId) {
         this.id = id;
         this.fileName = fileName;
         this.date = date;
@@ -28,6 +29,7 @@ public class FileModel implements Parcelable {
         this.type = type;
         this.owner = owner;
         this.location = location;
+        this.parentId = parentId;
     }
 
     protected FileModel(Parcel in) {
@@ -46,6 +48,7 @@ public class FileModel implements Parcelable {
         type = in.readString();
         owner = in.readLong();
         location = in.readString();
+        parentId = in.readLong();
     }
 
     public static final Creator<FileModel> CREATOR = new Creator<FileModel>() {
@@ -116,6 +119,14 @@ public class FileModel implements Parcelable {
         this.location = location;
     }
 
+    public long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(long parentId) {
+        this.parentId = parentId;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -135,5 +146,6 @@ public class FileModel implements Parcelable {
         parcel.writeString(type);
         parcel.writeLong(owner);
         parcel.writeString(location);
+        parcel.writeLong(parentId);
     }
 }

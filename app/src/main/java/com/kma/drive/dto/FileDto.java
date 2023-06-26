@@ -8,6 +8,7 @@ public class FileDto {
     public static final String TYPE = "type";
     public static final String OWNER = "owner";
     public static final String LOCATION = "location";
+    public static final String PARENT_ID = "parentId";
 
     private Long id;
     private String fileName;
@@ -16,8 +17,9 @@ public class FileDto {
     private String type;
     private long owner;
     private String location;
+    private long parentId;
 
-    public FileDto(Long id, String fileName, String date, boolean favorite, String type, long owner, String location) {
+    public FileDto(Long id, String fileName, String date, boolean favorite, String type, long owner, String location, long parentId) {
         this.id = id;
         this.fileName = fileName;
         this.date = date;
@@ -25,6 +27,7 @@ public class FileDto {
         this.type = type;
         this.owner = owner;
         this.location = location;
+        this.parentId = parentId;
     }
 
     public Long getId() {
@@ -85,5 +88,13 @@ public class FileDto {
 
     public String getEntireFileName() {
         return fileName + "." + type;
+    }
+
+    public long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(long parentId) {
+        this.parentId = parentId;
     }
 }

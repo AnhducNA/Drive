@@ -38,6 +38,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+// Fragment nay chi hien thi file
 public class HomeAppFragment extends BaseAbstractFragment implements AwareDataStateChange, ItemFileClickListener {
     private  RecyclerView mRecyclerView;
     private FileAdapter mFileAdapter;
@@ -61,13 +62,14 @@ public class HomeAppFragment extends BaseAbstractFragment implements AwareDataSt
 
         if (mUserSession.isDataFetching()) {
             mLoadingDataProgressBar.setVisibility(View.VISIBLE);
+            mEmptyFolderLinearLayout.setVisibility(View.INVISIBLE);
         } else {
             getRecentFiles();
             setVisibleEmptyView();
             mLoadingDataProgressBar.setVisibility(View.INVISIBLE);
         }
 
-        mFileAdapter = new FileAdapter(mContext.get(), mRecentFiles, mCallback, this);
+        mFileAdapter = new FileAdapter(mContext.get(), mRecentFiles, mCallback, this, true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext.get()));
         mRecyclerView.setAdapter(mFileAdapter);
     }
@@ -94,6 +96,11 @@ public class HomeAppFragment extends BaseAbstractFragment implements AwareDataSt
             mFileAdapter.notifyDataSetChanged();
             setVisibleEmptyView();
         }
+    }
+
+    @Override
+    public void onDataStateChanged(FileModel fileModel) {
+
     }
 
     @Override
@@ -138,7 +145,8 @@ public class HomeAppFragment extends BaseAbstractFragment implements AwareDataSt
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void getRecentFiles() {
         mRecentFiles.clear();
-        List<FileModel> temp = mUserSession.getFiles().stream().sorted(Comparator.comparing(FileModel::getDate).reversed())
+        List<FileModel> temp = mUserSession.getFiles().stream().filter(fileModel -> (!fileModel.getType().equals(Constant.FileType.FOLDER)))
+                .sorted(Comparator.comparing(FileModel::getDate).reversed())
                         .collect(Collectors.toList());
         for (int i = 0; i < Constant.MAX_RECENT_FILE_DISPLAY; i++) {
             try {

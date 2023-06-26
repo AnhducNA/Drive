@@ -211,7 +211,8 @@ public class Util {
                 fileDto.isFavorite(),
                 fileDto.getType(),
                 fileDto.getOwner(),
-                fileDto.getLocation());
+                fileDto.getLocation(),
+                fileDto.getParentId());
     }
 
     public static FileDto convertToFileDto(FileModel fileModel) {
@@ -221,7 +222,8 @@ public class Util {
                 fileModel.isFavorite(),
                 fileModel.getType(),
                 fileModel.getOwner(),
-                fileModel.getLocation());
+                fileModel.getLocation(),
+                fileModel.getParentId());
     }
 
     public static FileDto convertFromJSON(JSONObject object)  {
@@ -232,7 +234,8 @@ public class Util {
                     object.getBoolean(FileDto.FAVORITE),
                     object.getString(FileDto.TYPE),
                     object.getLong(FileDto.OWNER),
-                    object.getString(FileDto.LOCATION));
+                    object.getString(FileDto.LOCATION),
+                    object.getLong(FileDto.PARENT_ID));
             return fileDto;
         } catch (JSONException e) {
             return null;

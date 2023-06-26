@@ -5,6 +5,7 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+
         android:id="@+id/ln_top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,15 +19,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@android:color/transparent"
-            android:src="@drawable/icon_close" />
+            android:src="@drawable/baseline_arrow_back_24" />
 
         <TextView
             android:id="@+id/tv_file_name_open"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
             android:textColor="@color/black"
             android:textSize="18sp" />
     </LinearLayout>
+
+    <View
+        android:id="@+id/tv_liner"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E6E6E6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ln_top" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/folderRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_liner" />
 
     <ProgressBar
         android:id="@+id/pb_loading_data"
@@ -42,9 +63,40 @@
         layout="@layout/empty_folder_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:gravity="end"
+        android:id="@+id/ln_move_action"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/purple"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/bt_cancel_move"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/transparent"
+            android:background="@android:color/transparent"
+            android:text="@string/action_cancel_move"
+            android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/bt_move"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:backgroundTint="@android:color/transparent"
+            android:text="Di chuyển"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

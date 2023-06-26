@@ -1,5 +1,6 @@
 package com.kma.drive.session;
 
+import com.kma.drive.common.Constant;
 import com.kma.drive.dto.UserDto;
 import com.kma.drive.model.FileModel;
 
@@ -52,12 +53,23 @@ public class UserSession {
     }
 
     public FileModel createNewFile(String fileName, String type) {
-        return new FileModel(null,
-                fileName,
-                new Date(Calendar.getInstance().getTimeInMillis()),
-                false,
-                type,
-                user.getId(),
-                null);
+        return new FileModel(null, fileName, new Date(Calendar.getInstance().getTimeInMillis()), false, type,
+                user.getId(), null, Constant.ID_PARENT_DEFAULT);
+    }
+
+    public void getFileChildren(long parentId, List<FileModel> dest, boolean addFiles) {
+        for (FileModel fileModel: getFiles()) {
+            if (fileModel.getParentId() == parentId) {
+                if (!addFiles && !fileModel.getType().equals(Constant.FileType.FOLDER)) {
+                    continue;
+                }
+                dest.add(fileModel);
+            }
+        }
+    }
+
+    public FileModel getRootFolder() {
+        return new FileModel(0L, null, new Date(Calendar.getInstance().getTimeInMillis()), false, Constant.FileType.FOLDER, user.getId(),
+                null, Constant.ID_PARENT_DEFAULT);
     }
 }

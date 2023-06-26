@@ -3,6 +3,7 @@ package com.kma.drive.view.fragment;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -17,6 +18,7 @@ import com.kma.drive.adapter.FileAdapter;
 import com.kma.drive.callback.AwareDataStateChange;
 import com.kma.drive.adapter.FileFolderAdapter;
 import com.kma.drive.callback.ItemFileClickListener;
+import com.kma.drive.common.Constant;
 import com.kma.drive.dto.FileDto;
 import com.kma.drive.model.FileModel;
 import com.kma.drive.model.SanPham;
@@ -58,13 +60,14 @@ public class FilesFragment extends BaseAbstractFragment implements AwareDataStat
 
         if (mUserSession.isDataFetching()) {
             mLoadingDataProgressBar.setVisibility(View.VISIBLE);
+            mEmptyFolderLinearLayout.setVisibility(View.INVISIBLE);
         } else {
             getFiles();
             setVisibleEmptyView();
             mLoadingDataProgressBar.setVisibility(View.INVISIBLE);
         }
 
-        mFileAdapter = new FileAdapter(mContext.get(), mFiles, mCallback, this);
+        mFileAdapter = new FileAdapter(mContext.get(), mFiles, mCallback, this, true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext.get()));
         mRecyclerView.setAdapter(mFileAdapter);
 
@@ -95,6 +98,12 @@ public class FilesFragment extends BaseAbstractFragment implements AwareDataStat
     }
 
     @Override
+    public void onDataStateChanged(FileModel fileModel) {
+        getFiles();
+        onDataStateChanged();
+    }
+
+    @Override
     public void onDataDeleted(FileModel fileModel) {
         mFiles.remove(fileModel);
         onDataStateChanged();
@@ -102,13 +111,20 @@ public class FilesFragment extends BaseAbstractFragment implements AwareDataStat
 
     @Override
     public void onDataCreated(FileModel fileModel) {
-        mFiles.add(fileModel);
-        onDataStateChanged();
+        if (fileModel.getParentId() == Constant.ID_PARENT_DEFAULT) {
+            mFiles.add(fileModel);
+            onDataStateChanged();
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void getFiles() {
-        mUserSession.getFiles().stream().forEach(fileDto -> mFiles.add(fileDto));
+        mFiles.clear();
+        mUserSession.getFiles().stream().filter(fileModel -> (fileModel.getParentId() == Constant.ID_PARENT_DEFAULT))
+                .forEach(fileDto -> {
+                    mFiles.add(fileDto);
+                    Log.d("MinhNTn", "getFiles: " + fileDto.getParentId() + " " + fileDto.getFileName());
+                });
         if (mFileAdapter != null) {
             mFileAdapter.notifyDataSetChanged();
         }

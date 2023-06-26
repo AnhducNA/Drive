@@ -51,6 +51,11 @@ public class SharedFilesFragment extends BaseAbstractFragment implements AwareDa
     }
 
     @Override
+    public void onDataStateChanged(FileModel fileModel) {
+
+    }
+
+    @Override
     public void onDataDeleted(FileModel fileModel) {
 
     }

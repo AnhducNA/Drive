@@ -55,11 +55,13 @@ public class FavoriteFilesFragment extends BaseAbstractFragment implements Aware
 
         if (mUserSession.isDataFetching()) {
             mLoadingDataProgressBar.setVisibility(View.VISIBLE);
+            mEmptyFolderLinearLayout.setVisibility(View.INVISIBLE);
         } else {
+            setVisibleEmptyView();
             mLoadingDataProgressBar.setVisibility(View.INVISIBLE);
         }
 
-        mFileAdapter = new FileAdapter(mContext.get(), mFavoriteFiles, mCallback, this);
+        mFileAdapter = new FileAdapter(mContext.get(), mFavoriteFiles, mCallback, this, true);
         mFavoriteFilesRecyclerView.setLayoutManager(new LinearLayoutManager(mContext.get()));
         mFavoriteFilesRecyclerView.setAdapter(mFileAdapter);
 
@@ -94,6 +96,11 @@ public class FavoriteFilesFragment extends BaseAbstractFragment implements Aware
             mFileAdapter.notifyDataSetChanged();
             setVisibleEmptyView();
         }
+    }
+
+    @Override
+    public void onDataStateChanged(FileModel fileModel) {
+
     }
 
     @Override

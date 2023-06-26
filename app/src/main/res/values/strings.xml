@@ -18,7 +18,7 @@
     <string name="text_button_cancel_code">Hủy bỏ</string>
     <string name="message_register_success">Tạo tài khoản thành công</string>
     <string name="message_login_failed">Đăng nhập thất bại</string>
-    <string name="text_item_last_modify_time">Chỉnh sửa lần cuối vào </string>
+    <string name="text_item_last_modify_time">Truy cập lần cuối vào </string>
     <string name="function_item_share">Chia sẻ</string>
     <string name="function_item_add_favorite">Thêm vào yêu thích</string>
     <string name="function_item_remove_favorite">Xóa khỏi yêu thích</string>
@@ -29,4 +29,5 @@
     <string name="title_dialog_new_folder">Nhập tên thư mục</string>
     <string name="empty_folder_string">Thư mục rỗng</string>
     <string name="upload_image_file">Upload 1 ảnh</string>
+    <string name="action_cancel_move">Hủy bỏ</string>
 </resources>

@@ -23,7 +23,7 @@ public class Constant {
     public static final String AUTHORITY = "com.kma.drive.fileprovider";
     public static final int AVATAR_WIDTH_R = 100;
     public static final int AVATAR_HEIGHT_R = 100;
-
+    public static final int ID_PARENT_DEFAULT = 0; // paraent id mac dinh 0 the hien cho no se nam ngay tai cap 1 cua folder user
     public class FileType {
         public static final String PDF = "pdf";
         public static final String DOC = "doc";

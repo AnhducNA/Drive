@@ -29,12 +29,14 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
     private List<FileModel> mFiles;
     private FragmentCallback mCallback;
     private ItemFileClickListener mClickListener;
+    private boolean mInViewFolder;
 
-    public FileAdapter(Context context, List<FileModel> files, FragmentCallback callback, ItemFileClickListener clickListener) {
+    public FileAdapter(Context context, List<FileModel> files, FragmentCallback callback, ItemFileClickListener clickListener, boolean inViewFolder) {
         this.mContext = new WeakReference<>(context);
         this.mFiles = files;
         mCallback = callback;
         mClickListener = clickListener;
+        mInViewFolder = inViewFolder;
     }
 
     @Override
@@ -60,6 +62,9 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
             holder.recentlyTimeTextView.setCompoundDrawablePadding(10);
         } else {
             holder.recentlyTimeTextView.setCompoundDrawables(null, null, null, null);
+        }
+        if (!mInViewFolder) {
+            holder.functionButton.setVisibility(View.INVISIBLE);
         }
     }
 

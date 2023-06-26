@@ -3,6 +3,7 @@ package com.kma.drive.view.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -63,6 +65,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
     private TextView mFavoriteFunctionTextView;
     private TextView mChangeFileNameTextView;
     private TextView mDeleteFileTextView;
+    private TextView mMoveFileTextView;
     // component cua bottom dialog - end
     // component bottom dialog new file - start
     private BottomSheetDialog mBottomSheetNewFileDialog;
@@ -81,6 +84,8 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
         setContentView(R.layout.activity_main);
 
         mUserSession = UserSession.getInstance();
+        mRequestHelper = new HttpRequestHelper((mUserSession.getUser() == null)? null: mUserSession.getUser().getJwt());
+
         // cai dat bottom sheet - start
         mBottomSheetDialog = new BottomSheetDialog(this);
         mBottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog);
@@ -88,6 +93,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
         mFavoriteFunctionTextView = mBottomSheetDialog.findViewById(R.id.tv_favorite);
         mChangeFileNameTextView = mBottomSheetDialog.findViewById(R.id.tv_rename);
         mDeleteFileTextView = mBottomSheetDialog.findViewById(R.id.tv_delete);
+        mMoveFileTextView = mBottomSheetDialog.findViewById(R.id.tv_move);
         // cai dat bottom sheet - end
 
         //cai dat bottom sheet dialog new file - start
@@ -148,7 +154,6 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
 
         // fetch files user tu server ve
         mUserSession.setDataFetching(true);
-        mRequestHelper = new HttpRequestHelper(mUserSession.getUser().getJwt());
         mRequestHelper.getAllFilesForUser(mUserSession.getUser().getId(), new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -158,13 +163,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                         for (int i = 0; i < array.length(); i++) {
                             JSONObject file = array.getJSONObject(i);
 
-                            FileDto fileDto = new FileDto((long) file.getInt(FileDto.ID),
-                                    file.getString(FileDto.FILE_NAME),
-                                    file.getString(FileDto.DATE),
-                                    file.getBoolean(FileDto.FAVORITE),
-                                    file.getString(FileDto.TYPE),
-                                    file.getLong(FileDto.OWNER),
-                                    file.getString(FileDto.LOCATION));
+                            FileDto fileDto = Util.convertFromJSON(file);
 
                             FileModel fileModel = Util.convertToFileModel(fileDto);
                             mUserSession.getFiles().add(fileModel);
@@ -213,6 +212,21 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
 
     private void showBottomSheetDialog() {
         mBottomSheetNewFileDialog.show();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        FileModel fileModel = intent.getParcelableExtra(OpenFileActivity.EXTRA_UPDATE_FILE_LOCATION, FileModel.class);
+        if (fileModel != null) {
+            for (int i = 0; i < mUserSession.getFiles().size(); i++) {
+                if (mUserSession.getFiles().get(i).getId() == fileModel.getId()) {
+                    mUserSession.getFiles().set(i, fileModel);
+                }
+            }
+            ((AwareDataStateChange)getCurrentDisplayFragment()).onDataStateChanged(fileModel);
+        }
     }
 
     @Override
@@ -374,6 +388,15 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                     mBottomSheetDialog.hide();
                 }
             });
+        });
+        mMoveFileTextView.setOnClickListener(view -> {
+            Intent intent = new Intent(FileExploreActivity.this, OpenFileActivity.class);
+            intent.putExtra(OpenFileActivity.EXTRA_FILE_MOVING, currentFile);
+            intent.putExtra(OpenFileActivity.EXTRA_FILE_OPEN, mUserSession.getRootFolder());
+            intent.putExtra(OpenFileActivity.EXTRA_REASON_USE_ACTIVITY, OpenFileActivity.REASON_MOVE_FILE);
+            intent.putExtra(OpenFileActivity.EXTRA_NEW_LOCATION, "");
+            startActivity(intent);
+            mBottomSheetDialog.hide();
         });
         mBottomSheetDialog.show();
     }
