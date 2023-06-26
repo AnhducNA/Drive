@@ -29,5 +29,6 @@
     <string name="title_dialog_new_folder">Nhập tên thư mục</string>
     <string name="empty_folder_string">Thư mục rỗng</string>
     <string name="upload_image_file">Upload 1 ảnh</string>
+    <string name="upload_file">Upload 1 file</string>
     <string name="action_cancel_move">Hủy bỏ</string>
 </resources>

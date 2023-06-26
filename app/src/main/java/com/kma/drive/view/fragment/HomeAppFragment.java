@@ -114,7 +114,7 @@ public class HomeAppFragment extends BaseAbstractFragment implements AwareDataSt
     public void onDataCreated(FileModel fileModel) {
         mRecentFiles.add(fileModel);
         if (mRecentFiles.size() > Constant.MAX_RECENT_FILE_DISPLAY) {
-            mRecentFiles.remove(Constant.MAX_RECENT_FILE_DISPLAY);
+            mRecentFiles.remove(4);
             mRecentFiles.stream().sorted(Comparator.comparing(FileModel::getDate).reversed());
         }
         onDataStateChanged();

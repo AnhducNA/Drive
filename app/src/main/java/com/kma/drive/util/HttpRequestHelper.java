@@ -76,7 +76,7 @@ public class HttpRequestHelper {
         call.enqueue(callback);
     }
 
-    public void uploadFile(long fileId, File file, Callback<ResponseBody> callback) {
+    public void uploadFile(long fileId, File file, Callback<ResponseBody> callback, String filename) {
         RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
         MultipartBody.Part part = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
         Call<ResponseBody> call = mApiService.uploadFile(fileId, part);

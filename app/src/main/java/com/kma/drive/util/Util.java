@@ -2,11 +2,14 @@ package com.kma.drive.util;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
@@ -31,6 +34,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -144,12 +149,32 @@ public class Util {
 
     public static int getIconFileFromType(String type) {
         switch (type) {
+            case Constant.FileType.PPT:
+            case Constant.FileType.POTM:
+            case Constant.FileType.POTX:
+            case Constant.FileType.PPAM:
+            case Constant.FileType.PPSM:
+            case Constant.FileType.PPSX:
+            case Constant.FileType.PPTM:
             case Constant.FileType.PPTX: {
                 return R.drawable.icon_pptx_file;
             }
-            case Constant.FileType.TXT:
-            case Constant.FileType.DOC: {
+            case Constant.FileType.DOC:
+            case Constant.FileType.DOTX:
+            case Constant.FileType.DOCM:
+            case Constant.FileType.DOCX:
+            case Constant.FileType.DOTM:
+            case Constant.FileType.TXT: {
                 return R.drawable.icon_txt_file;
+            }
+            case Constant.FileType.XLAM:
+            case Constant.FileType.XLS:
+            case Constant.FileType.XLSB:
+            case Constant.FileType.XLSM:
+            case Constant.FileType.XLSX:
+            case Constant.FileType.XLTM:
+            case Constant.FileType.XLTX: {
+                return R.drawable.icon_excel;
             }
             case Constant.FileType.PDF: {
                 return R.drawable.icon_pdf_file;
@@ -249,5 +274,66 @@ public class Util {
         fos.flush();
         fos.close();
         return image;
+    }
+
+    public static String getPathFromUri(Context context, Uri uri) {
+        String filePath = "";
+        if (uri != null) {
+            if (uri.getScheme().equals("content")) {
+                Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA);
+                    filePath = cursor.getString(columnIndex);
+                    cursor.close();
+                }
+            } else if (uri.getScheme().equals("file")) {
+                filePath = uri.getPath();
+            }
+        }
+        return filePath;
+    }
+
+    public static String getFileNameFromUri(Context context, Uri uri) {
+        String fileName = null;
+
+        if (uri != null) {
+            Cursor cursor = null;
+            try {
+                String[] projection = {MediaStore.MediaColumns.DISPLAY_NAME};
+                cursor = context.getContentResolver().query(uri, projection, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME);
+                    fileName = cursor.getString(columnIndex);
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+        }
+
+        return fileName;
+    }
+
+    public static File getFileFromUri(Context context, Uri uri) {
+        String name = getFileNameFromUri(context, uri);
+        InputStream inputStream = null;
+        try {
+            inputStream = context.getContentResolver().openInputStream(uri);
+            File file = new File(context.getFilesDir(), name);
+
+            OutputStream outputStream = new FileOutputStream(file);
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+            outputStream.close();
+            inputStream.close();
+
+            return file;
+        } catch (IOException e) {
+            return new File(uri.getPath());
+        }
     }
 }

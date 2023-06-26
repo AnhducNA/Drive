@@ -228,7 +228,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                     } else {
                         Uri fileUri = FileProvider.getUriForFile(OpenFileActivity.this, Constant.AUTHORITY, file);
                         Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setDataAndType(fileUri, Util.getMimeType(file));
+                        intent.setDataAndType(fileUri, getContentResolver().getType(fileUri));
                         intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
                         try {

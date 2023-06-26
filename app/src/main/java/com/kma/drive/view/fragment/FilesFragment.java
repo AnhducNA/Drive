@@ -123,7 +123,6 @@ public class FilesFragment extends BaseAbstractFragment implements AwareDataStat
         mUserSession.getFiles().stream().filter(fileModel -> (fileModel.getParentId() == Constant.ID_PARENT_DEFAULT))
                 .forEach(fileDto -> {
                     mFiles.add(fileDto);
-                    Log.d("MinhNTn", "getFiles: " + fileDto.getParentId() + " " + fileDto.getFileName());
                 });
         if (mFileAdapter != null) {
             mFileAdapter.notifyDataSetChanged();

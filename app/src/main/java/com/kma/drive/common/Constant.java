@@ -25,14 +25,36 @@ public class Constant {
     public static final int AVATAR_HEIGHT_R = 100;
     public static final int ID_PARENT_DEFAULT = 0; // paraent id mac dinh 0 the hien cho no se nam ngay tai cap 1 cua folder user
     public class FileType {
-        public static final String PDF = "pdf";
-        public static final String DOC = "doc";
+        public static final String DOC = "application/msword"; // file .dot
+        public static final String DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        public static final String DOTX = "application/vnd.openxmlformats-officedocument.wordprocessingml.template";
+        public static final String DOCM = "application/vnd.ms-word.document.macroEnabled.12";
+        public static final String DOTM = "application/vnd.ms-word.template.macroEnabled.12";
+
+        public static final String XLS = "application/vnd.ms-excel"; // cac file .xlt, xlt
+        public static final String XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        public static final String XLTX = "application/vnd.openxmlformats-officedocument.spreadsheetml.template";
+        public static final String XLSM = "application/vnd.ms-excel.sheet.macroEnabled.12";
+        public static final String XLTM = "application/vnd.ms-excel.template.macroEnabled.12";
+        public static final String XLAM = "application/vnd.ms-excel.addin.macroEnabled.12";
+        public static final String XLSB = "application/vnd.ms-excel.sheet.binary.macroEnabled.12";
+
+        public static final String PPT = "application/vnd.ms-powerpoint"; // cac file .pot, .pps, .pps, .ppa cung co type tuong tu
+        public static final String PPTX = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+        public static final String POTX = "application/vnd.openxmlformats-officedocument.presentationml.template";
+        public static final String PPSX = "application/vnd.openxmlformats-officedocument.presentationml.slideshow";
+        public static final String PPAM = "application/vnd.ms-powerpoint.addin.macroEnabled.12";
+        public static final String PPTM = "application/vnd.ms-powerpoint.presentation.macroEnabled.12";
+        public static final String POTM = "application/vnd.ms-powerpoint.template.macroEnabled.12";
+        public static final String PPSM = "application/vnd.ms-powerpoint.slideshow.macroEnabled.12";
+
+        public static final String PDF = "application/pdf";
         public static final String TXT = "txt";
-        public static final String PPTX = "pptx";
+
         public static final String UNKNOWN = "unknown";
         public static final String FOLDER = "folder";
-        public static final String JPG = "jpg";
-        public static final String JPEG = "jpeg";
-        public static final String PNG = "png";
+        public static final String JPG = "image/jpg";
+        public static final String JPEG = "image/jpeg";
+        public static final String PNG = "image/png";
     }
 }

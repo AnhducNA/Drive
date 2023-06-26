@@ -3,6 +3,7 @@ package com.kma.drive.view.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -57,6 +58,7 @@ import retrofit2.Response;
 public class FileExploreActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, FragmentCallback {
     public static final String HOME_APP_FRAG_NAME = "HOME APP FRAGMENT";
     public static final int REQUEST_IMAGE_CAPTURE_CODE = 101;
+    public static final int REQUEST_FILE_UPLOAD_CODE = 102;
     // component
     private BottomNavigationView mBottomNavigationView;
     // component cua bottom dialog file - start
@@ -144,6 +146,11 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivityForResult(intent, REQUEST_IMAGE_CAPTURE_CODE);
             }
+        });
+        file.setOnClickListener(view -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("*/*");
+            startActivityForResult(intent, REQUEST_FILE_UPLOAD_CODE);
         });
         //cai dat bottom sheet dialog new file - end
 
@@ -417,7 +424,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                     @Override
                     public void execute(Object object) {
                         try {
-                            String name = Calendar.getInstance().getTimeInMillis() + "." + Constant.FileType.PNG;
+                            String name = Calendar.getInstance().getTimeInMillis() + ".jpeg";
                             File image = Util.convertBitmapToFile(FileExploreActivity.this, imageBitmap, name);
                             FileModel temp = mUserSession.createNewFile(name, Constant.FileType.PNG);
                             mRequestHelper.saveFile(Util.convertToFileDto(temp), new Callback<ResponseBody>() {
@@ -443,7 +450,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                                 public void onFailure(Call<ResponseBody> call, Throwable t) {
 
                                                 }
-                                            });
+                                            },image.getName());
                                         } catch (JSONException | IOException e) {
                                             //
                                         }
@@ -459,7 +466,57 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                             });
                         } catch (IOException e) {
                             //TODO
+                            e.printStackTrace();
                         }
+                    }
+                }).show();
+            } else if (requestCode == REQUEST_FILE_UPLOAD_CODE) {
+                Uri uri = data.getData();
+                String name = Util.getFileNameFromUri(this, uri);
+                File file = Util.getFileFromUri(this, uri);
+                Util.getOptionInputTextDialog(this, getString(R.string.upload_file), name, null, new Function() {
+                    @Override
+                    public void execute(Object object) {
+                        String fileName = (String) object;
+                        String type = getContentResolver().getType(uri);
+                        FileModel temp = mUserSession.createNewFile(fileName, type);
+                        mRequestHelper.saveFile(Util.convertToFileDto(temp), new Callback<ResponseBody>() {
+                            @Override
+                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                if (response.isSuccessful()) {
+                                    try {
+                                        JSONObject object1 = new JSONObject(response.body().string());
+                                        FileDto fileDto = Util.convertFromJSON(object1);
+                                        temp.setId(fileDto.getId());
+                                        mRequestHelper.uploadFile(temp.getId(), file, new Callback<ResponseBody>() {
+                                            @Override
+                                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                                if (response.isSuccessful()) {
+                                                    mUserSession.getFiles().add(temp);
+                                                    ((AwareDataStateChange)getCurrentDisplayFragment()).onDataCreated(temp);
+                                                } else {
+                                                    Util.getMessageDialog(FileExploreActivity.this, response.errorBody().toString(), null);
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                                            }
+                                        }, fileName);
+                                    } catch (JSONException | IOException e) {
+                                        //
+                                    }
+                                } else {
+                                    Util.getMessageDialog(FileExploreActivity.this, response.message(), null);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                            }
+                        });
                     }
                 }).show();
             }
