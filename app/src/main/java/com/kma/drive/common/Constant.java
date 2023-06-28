@@ -17,6 +17,8 @@ public class Constant {
     public static final String PARAM_USER_ID = "userId";
     public static final String PARAM_FILE_ID = "fileId";
     public static final String PARAM_FILE = "file";
+    public static final String PARAM_SHARE_EMAIL = "email";
+    public static final String PARAM_SHARE_PERMISSION = "permission";
 
     //
     public static final int MAX_RECENT_FILE_DISPLAY = 5;
@@ -24,6 +26,11 @@ public class Constant {
     public static final int AVATAR_WIDTH_R = 100;
     public static final int AVATAR_HEIGHT_R = 100;
     public static final int ID_PARENT_DEFAULT = 0; // paraent id mac dinh 0 the hien cho no se nam ngay tai cap 1 cua folder user
+    // action thao tac voi file - start
+    public static final int ACTION_CREATE = 111;
+    public static final int ACTION_CHANGE_NAME = 112;
+    public static final int ACTION_DELETE = 113;
+    // action thao tac voi file - end
     public class FileType {
         public static final String DOC = "application/msword"; // file .dot
         public static final String DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";

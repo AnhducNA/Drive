@@ -42,4 +42,9 @@ public interface ApiService {
     @Multipart
     @POST("/api/file/upload")
     Call<ResponseBody> uploadFile(@Query(Constant.PARAM_FILE_ID) long fileId, @Part MultipartBody.Part file);
+
+    @POST("/api/share")
+    Call<ResponseBody> shareFile(@Query(Constant.PARAM_FILE_ID) long fileId,
+                                 @Query(Constant.PARAM_SHARE_PERMISSION) int permission,
+                                 @Query(Constant.PARAM_SHARE_EMAIL) String email);
 }

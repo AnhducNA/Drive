@@ -27,8 +27,14 @@
     <string name="function_item_rename">Đổi tên</string>
     <string name="title_dialog_change_name_file">Nhập tên mới</string>
     <string name="title_dialog_new_folder">Nhập tên thư mục</string>
+    <string name="title_dialog_share_file">Chia sẻ 1 file: </string>
     <string name="empty_folder_string">Thư mục rỗng</string>
     <string name="upload_image_file">Upload 1 ảnh</string>
     <string name="upload_file">Upload 1 file</string>
     <string name="action_cancel_move">Hủy bỏ</string>
+    <string name="message_share_file_success">Chia sẻ file thành công</string>
+    <string name="message_no_permission">Bạn không có quyền để làm vậy</string>
+    <string name="search_hint">Tìm kiếm</string>
+    <string name="app_label">Store</string>
+    <string name="title_search">Search</string>
 </resources>

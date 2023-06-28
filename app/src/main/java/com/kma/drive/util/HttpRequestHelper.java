@@ -82,4 +82,9 @@ public class HttpRequestHelper {
         Call<ResponseBody> call = mApiService.uploadFile(fileId, part);
         call.enqueue(callback);
     }
+
+    public void shareFile(long fileId, int permission, String email, Callback<ResponseBody> callback) {
+        Call<ResponseBody> call = mApiService.shareFile(fileId, permission, email);
+        call.enqueue(callback);
+    }
 }

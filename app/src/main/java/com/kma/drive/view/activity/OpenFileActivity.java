@@ -34,6 +34,7 @@ import com.kma.drive.util.HttpRequestHelper;
 import com.kma.drive.util.Util;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Date;
 import java.util.ArrayList;
@@ -69,6 +70,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
     private TextView mChangeFileNameTextView;
     private TextView mDeleteFileTextView;
     private TextView mMoveFileTextView;
+    private TextView mShareFileTextView;
     // component cua bottom dialog - end
     // component thanh chuc nang di chuyen - start
     private LinearLayout mMoveFunctionLinearLayout;
@@ -124,6 +126,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
             mChangeFileNameTextView = mBottomSheetDialog.findViewById(R.id.tv_rename);
             mDeleteFileTextView = mBottomSheetDialog.findViewById(R.id.tv_delete);
             mMoveFileTextView = mBottomSheetDialog.findViewById(R.id.tv_move);
+            mShareFileTextView = mBottomSheetDialog.findViewById(R.id.tv_share_file);
             // cai dat bottom sheet - end
         } else {
             mMoveFunctionLinearLayout.setVisibility(View.VISIBLE);
@@ -298,6 +301,10 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
             mBottomSheetDialog.hide();
         });
         mChangeFileNameTextView.setOnClickListener(view -> {
+            if (currentFile.getOwner() != mUserSession.getUser().getId()) {
+                Util.getMessageDialog(OpenFileActivity.this, getString(R.string.message_no_permission), null).show();
+                return;
+            }
             FileDto dtoFile = Util.convertToFileDto(currentFile);
             Util.getOptionInputTextDialog(OpenFileActivity.this,
                     getString(R.string.title_dialog_change_name_file), dtoFile.getFileName(), null, new Function() {
@@ -311,6 +318,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                                         currentFile.setFileName((String) object);
                                         mTargetFileNameTextView.setText(currentFile.getFileName());
                                         onDataStateChanged();
+                                        mUserSession.updateStrFile(currentFile, Constant.ACTION_CHANGE_NAME);
                                     } else {
                                         Util.getMessageDialog(OpenFileActivity.this, response.body().toString(), null);
                                     }
@@ -327,12 +335,17 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
         });
         //TODO luc xoa file check xoa ca local nua
         mDeleteFileTextView.setOnClickListener(view -> {
+            if (currentFile.getOwner() != mUserSession.getUser().getId()) {
+                Util.getMessageDialog(OpenFileActivity.this, getString(R.string.message_no_permission), null).show();
+                return;
+            }
             mRequestHelper.deleteFile(currentFile.getId(), new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
                         mUserSession.getFiles().remove(currentFile);
                         onDataDeleted(currentFile);
+                        mUserSession.updateStrFile(currentFile, Constant.ACTION_DELETE);
                     } else {
                         Util.getMessageDialog(OpenFileActivity.this, response.body().toString(), null);
                     }
@@ -346,6 +359,10 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
             mBottomSheetDialog.hide();
         });
         mMoveFileTextView.setOnClickListener(view -> {
+            if (currentFile.getOwner() != mUserSession.getUser().getId()) {
+                Util.getMessageDialog(OpenFileActivity.this, getString(R.string.message_no_permission), null).show();
+                return;
+            }
             Intent intent = new Intent(OpenFileActivity.this, OpenFileActivity.class);
             intent.putExtra(OpenFileActivity.EXTRA_FILE_MOVING, currentFile);
             intent.putExtra(OpenFileActivity.EXTRA_FILE_OPEN, mUserSession.getRootFolder());
@@ -353,6 +370,41 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
             intent.putExtra(OpenFileActivity.EXTRA_NEW_LOCATION, "");
             startActivity(intent);
             mBottomSheetDialog.hide();
+        });
+        mShareFileTextView.setOnClickListener(view -> {
+            if (currentFile.getOwner() != mUserSession.getUser().getId()) {
+                Util.getMessageDialog(OpenFileActivity.this, getString(R.string.message_no_permission), null);
+                return;
+            }
+            Util.getOptionShareFileDialog(OpenFileActivity.this,
+                    getString(R.string.title_dialog_share_file) + currentFile.getFileName(), null, null, new Function() {
+                        @Override
+                        public void execute(Object... objects) {
+                            String email = (String) objects[0];
+                            int permission = (int) objects[1];
+                            mRequestHelper.shareFile(currentFile.getId(), permission, email, new Callback<ResponseBody>() {
+                                @Override
+                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                    if (response.isSuccessful()) {
+                                        Util.getMessageDialog(OpenFileActivity.this,
+                                                getString(R.string.message_share_file_success), null).show();
+                                    } else {
+                                        try {
+                                            Util.getMessageDialog(OpenFileActivity.this,
+                                                    response.errorBody().string(), null).show();
+                                        } catch (IOException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                    Log.d("MinhNTn", "onFailure: ");
+                                }
+                            });
+                        }
+                    }).show();;
         });
         mBottomSheetDialog.show();
     }

@@ -13,8 +13,10 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.widget.AppCompatButton;
@@ -39,6 +41,7 @@ import java.lang.reflect.Field;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class Util {
@@ -147,6 +150,41 @@ public class Util {
         return dialog;
     }
 
+    public static Dialog getOptionShareFileDialog(Context context, String title, String string, Function negative, Function positive) {
+        Dialog dialog = new Dialog(context);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setContentView(R.layout.dialog_option_share_file);
+        dialog.setCanceledOnTouchOutside(false);
+
+        TextView titleTV = dialog.findViewById(R.id.tv_title_dialog_option_input);
+        EditText editText = dialog.findViewById(R.id.et_input_mail_to_share);
+        Spinner spinner = dialog.findViewById(R.id.sn_permission);
+        AppCompatButton negativeButton = dialog.findViewById(R.id.bt_cancel_dialog_option);
+        AppCompatButton positiveButton = dialog.findViewById(R.id.bt_confirm_dialog_option);
+
+        titleTV.setText(title);
+        ArrayList<String> data = new ArrayList<>();
+        data.add("Xem");
+        data.add("Xóa");
+        data.add("Chia sẻ");
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, data);
+        spinner.setAdapter(arrayAdapter);
+        negativeButton.setOnClickListener(view -> {
+            dialog.cancel();
+            if (negative != null) {
+                negative.execute();
+            }
+        });
+        positiveButton.setOnClickListener(view -> {
+            dialog.cancel();
+            if (positive != null) {
+                positive.execute(editText.getText().toString(), spinner.getSelectedItemPosition());
+            }
+        });
+
+        return dialog;
+    }
+
     public static int getIconFileFromType(String type) {
         switch (type) {
             case Constant.FileType.PPT:
@@ -237,7 +275,8 @@ public class Util {
                 fileDto.getType(),
                 fileDto.getOwner(),
                 fileDto.getLocation(),
-                fileDto.getParentId());
+                fileDto.getParentId(),
+                false);
     }
 
     public static FileDto convertToFileDto(FileModel fileModel) {

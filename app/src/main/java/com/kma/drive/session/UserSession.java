@@ -14,10 +14,12 @@ public class UserSession {
     private static UserSession userSession;
     private UserDto user;
     private List<FileModel> files;
+    private List<String> strFiles;
     private boolean dataFetching; // cho biet data co dang duoc fetch tu phia server ve khong
 
     private UserSession() {
         files = new ArrayList<>();
+        strFiles = new ArrayList<>();
         dataFetching = false;
     }
 
@@ -44,6 +46,14 @@ public class UserSession {
         this.files = files;
     }
 
+    public List<String> getStrFiles() {
+        return strFiles;
+    }
+
+    public void setStrFiles(List<String> strFiles) {
+        this.strFiles = strFiles;
+    }
+
     public boolean isDataFetching() {
         return dataFetching;
     }
@@ -54,7 +64,7 @@ public class UserSession {
 
     public FileModel createNewFile(String fileName, String type) {
         return new FileModel(null, fileName, new Date(Calendar.getInstance().getTimeInMillis()), false, type,
-                user.getId(), null, Constant.ID_PARENT_DEFAULT);
+                user.getId(), null, Constant.ID_PARENT_DEFAULT, false);
     }
 
     public void getFileChildren(long parentId, List<FileModel> dest, boolean addFiles) {
@@ -70,6 +80,39 @@ public class UserSession {
 
     public FileModel getRootFolder() {
         return new FileModel(0L, null, new Date(Calendar.getInstance().getTimeInMillis()), false, Constant.FileType.FOLDER, user.getId(),
-                null, Constant.ID_PARENT_DEFAULT);
+                null, Constant.ID_PARENT_DEFAULT, false);
+    }
+
+    public FileModel getFileModelByFileName(String fileName) {
+        for (FileModel fileModel: files) {
+            if (fileModel.getFileName().equals(fileName)) {
+                return fileModel;
+            }
+        }
+
+        return null;
+    }
+
+    public void updateStrFile(FileModel fileModel, int action) {
+        switch (action) {
+            case Constant.ACTION_CREATE: {
+                strFiles.add(fileModel.getFileName());
+                break;
+            }
+            case Constant.ACTION_DELETE: {
+                for (String s: strFiles) {
+                    if (s.equals(fileModel.getFileName())) {
+                        strFiles.remove(s);
+                        break;
+                    }
+                }
+                break;
+            }
+            case Constant.ACTION_CHANGE_NAME: {
+                int index = files.indexOf(fileModel);
+                strFiles.set(index, fileModel.getFileName());
+                break;
+            }
+        }
     }
 }

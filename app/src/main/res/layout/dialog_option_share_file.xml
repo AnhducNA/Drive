@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_rounded_rectangle_purple"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_title_dialog_option_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/et_input_mail_to_share"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="16dp"
+        android:autofillHints=""
+        android:background="@drawable/plain_edittext"
+        android:ellipsize="end"
+        android:hint="Email chia sẻ"
+        android:inputType="textMultiLine|textEmailAddress"
+        android:maxLines="@integer/line_of_edittext"
+        android:scrollHorizontally="true"
+        android:textColor="@color/black" />
+
+    <LinearLayout
+        android:layout_marginBottom="48dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:weightSum="2">
+        <TextView
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:text="Phân quyền"/>
+
+        <LinearLayout
+            android:background="@color/purple_0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/sn_permission"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginBottom="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/bt_cancel_dialog_option"
+            android:layout_width="@dimen/button_confirm_code"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/button_parent"
+            android:text="@string/text_button_cancel_code"
+            android:textColor="@color/white" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/bt_confirm_dialog_option"
+            android:layout_width="@dimen/button_confirm_code"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_parent"
+            android:text="@string/text_button_confirm_code"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -10,7 +10,11 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -68,11 +72,14 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
     private TextView mChangeFileNameTextView;
     private TextView mDeleteFileTextView;
     private TextView mMoveFileTextView;
+    private TextView mShareFileTextView;
     // component cua bottom dialog - end
     // component bottom dialog new file - start
     private BottomSheetDialog mBottomSheetNewFileDialog;
     // component bottom dialog new file - end
     private CircularImageView mUserAvatarImageView;
+    private AutoCompleteTextView mSearchAutoCompleteTextView;
+    private ArrayAdapter<String> mSearchAdapter;
 
     // etc
     private UserSession mUserSession;
@@ -96,6 +103,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
         mChangeFileNameTextView = mBottomSheetDialog.findViewById(R.id.tv_rename);
         mDeleteFileTextView = mBottomSheetDialog.findViewById(R.id.tv_delete);
         mMoveFileTextView = mBottomSheetDialog.findViewById(R.id.tv_move);
+        mShareFileTextView = mBottomSheetDialog.findViewById(R.id.tv_share_file);
         // cai dat bottom sheet - end
 
         //cai dat bottom sheet dialog new file - start
@@ -123,6 +131,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                                 temp.setId(tempDto.getId());
                                                 mUserSession.getFiles().add(temp);
                                                 ((AwareDataStateChange)getCurrentDisplayFragment()).onDataCreated(temp);
+                                                notifySearchDataChanged(temp, Constant.ACTION_CREATE);
                                             }
                                         } catch (JSONException | IOException e) {
                                             //TODO
@@ -159,6 +168,24 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
         // Mac dinh start activity nay la home_frag hien ra
         mBottomNavigationView.setSelectedItemId(R.id.footer_home);
 
+        // cai dat search textview - start
+        mSearchAutoCompleteTextView = findViewById(R.id.sv_item_bar);
+        mSearchAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, mUserSession.getStrFiles());
+        mSearchAutoCompleteTextView.setAdapter(mSearchAdapter);
+        mSearchAutoCompleteTextView.setOnItemClickListener((adapterView, view, i, l) -> {
+            String fileName = (String) adapterView.getItemAtPosition(i);
+            final FileModel fileDto = mUserSession.getFileModelByFileName(fileName);
+            if (fileDto == null) {
+                //TODO do something here
+                return;
+            }
+            Intent intent = new Intent(FileExploreActivity.this, OpenFileActivity.class);
+            intent.putExtra(OpenFileActivity.EXTRA_FILE_OPEN, fileDto);
+            FileExploreActivity.this.startActivity(intent);
+            mSearchAutoCompleteTextView.setText(null);
+        });
+        // cai dat search textview - end
+
         // fetch files user tu server ve
         mUserSession.setDataFetching(true);
         mRequestHelper.getAllFilesForUser(mUserSession.getUser().getId(), new Callback<ResponseBody>() {
@@ -173,6 +200,11 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                             FileDto fileDto = Util.convertFromJSON(file);
 
                             FileModel fileModel = Util.convertToFileModel(fileDto);
+                            fileModel.setShared(fileModel.getOwner() != mUserSession.getUser().getId());
+                            if (fileModel.isShared() ) {
+                                fileModel.setParentId(Constant.ID_PARENT_DEFAULT);
+                            }
+                            mUserSession.getStrFiles().add(fileModel.getFileName());
                             mUserSession.getFiles().add(fileModel);
                         }
                         mUserSession.setDataFetching(false);
@@ -209,6 +241,8 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
         if (fragment != null ) {
             ((AwareDataStateChange) fragment).onDataLoadingFinished();
         }
+        // Notify ca text search nua
+        mSearchAdapter.notifyDataSetChanged();
     }
 
     private Fragment getCurrentDisplayFragment() {
@@ -230,10 +264,19 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
             for (int i = 0; i < mUserSession.getFiles().size(); i++) {
                 if (mUserSession.getFiles().get(i).getId() == fileModel.getId()) {
                     mUserSession.getFiles().set(i, fileModel);
+                    mUserSession.getStrFiles().set(i, fileModel.getFileName());
                 }
             }
             ((AwareDataStateChange)getCurrentDisplayFragment()).onDataStateChanged(fileModel);
+            mSearchAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // thuc hien cap nhat lai data search khi vua ve tu openFileActivity
+        notifySearchDataChanged(null, 0);
     }
 
     @Override
@@ -338,7 +381,11 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                         Fragment fragment = getCurrentDisplayFragment();
                         ((AwareDataStateChange) fragment).onDataStateChanged();
                     } else {
-                        Util.getMessageDialog(FileExploreActivity.this, response.body().toString(), null);
+                        try {
+                            Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
 
@@ -350,6 +397,10 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
             mBottomSheetDialog.hide();
         });
         mChangeFileNameTextView.setOnClickListener(view -> {
+            if (currentFile.getOwner() != mUserSession.getUser().getId()) {
+                Util.getMessageDialog(FileExploreActivity.this, getString(R.string.message_no_permission), null).show();
+                return;
+            }
             FileDto dtoFile = Util.convertToFileDto(currentFile);
             Util.getOptionInputTextDialog(FileExploreActivity.this,
                     getString(R.string.title_dialog_change_name_file), dtoFile.getFileName(), null, new Function() {
@@ -363,8 +414,14 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                         currentFile.setFileName((String) object);
                                         mTargetFileNameTextView.setText(currentFile.getFileName());
                                         ((AwareDataStateChange)getCurrentDisplayFragment()).onDataStateChanged();
+                                        //
+                                        notifySearchDataChanged(currentFile, Constant.ACTION_CHANGE_NAME);
                                     } else {
-                                        Util.getMessageDialog(FileExploreActivity.this, response.body().toString(), null);
+                                        try {
+                                            Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null);
+                                        } catch (IOException e) {
+                                            throw new RuntimeException(e);
+                                        }
                                     }
                                 }
 
@@ -378,14 +435,23 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
         });
         //TODO luc xoa file check xoa ca local nua
         mDeleteFileTextView.setOnClickListener(view -> {
+            if (currentFile.getOwner() != mUserSession.getUser().getId()) {
+                Util.getMessageDialog(FileExploreActivity.this, getString(R.string.message_no_permission), null).show();
+                return;
+            }
             mRequestHelper.deleteFile(currentFile.getId(), new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
                         mUserSession.getFiles().remove(currentFile);
                         ((AwareDataStateChange)getCurrentDisplayFragment()).onDataDeleted(currentFile);
+                        notifySearchDataChanged(currentFile, Constant.ACTION_DELETE);
                     } else {
-                        Util.getMessageDialog(FileExploreActivity.this, response.body().toString(), null);
+                        try {
+                            Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                     mBottomSheetDialog.hide();
                 }
@@ -397,6 +463,10 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
             });
         });
         mMoveFileTextView.setOnClickListener(view -> {
+            if (currentFile.getOwner() != mUserSession.getUser().getId()) {
+                Util.getMessageDialog(FileExploreActivity.this, getString(R.string.message_no_permission), null).show();
+                return;
+            }
             Intent intent = new Intent(FileExploreActivity.this, OpenFileActivity.class);
             intent.putExtra(OpenFileActivity.EXTRA_FILE_MOVING, currentFile);
             intent.putExtra(OpenFileActivity.EXTRA_FILE_OPEN, mUserSession.getRootFolder());
@@ -404,6 +474,41 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
             intent.putExtra(OpenFileActivity.EXTRA_NEW_LOCATION, "");
             startActivity(intent);
             mBottomSheetDialog.hide();
+        });
+        mShareFileTextView.setOnClickListener(view -> {
+            if (currentFile.getOwner() != mUserSession.getUser().getId()) {
+                Util.getMessageDialog(FileExploreActivity.this, getString(R.string.message_no_permission), null).show();
+                return;
+            }
+            Util.getOptionShareFileDialog(FileExploreActivity.this,
+                    getString(R.string.title_dialog_share_file) + currentFile.getFileName(), null, null, new Function() {
+                        @Override
+                        public void execute(Object... objects) {
+                            String email = (String) objects[0];
+                            int permission = (int) objects[1];
+                            mRequestHelper.shareFile(currentFile.getId(), permission, email, new Callback<ResponseBody>() {
+                                @Override
+                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                    if (response.isSuccessful()) {
+                                        Util.getMessageDialog(FileExploreActivity.this,
+                                                getString(R.string.message_share_file_success), null).show();
+                                    } else {
+                                        try {
+                                            Util.getMessageDialog(FileExploreActivity.this,
+                                                    response.errorBody().string(), null).show();
+                                        } catch (IOException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                    Log.d("MinhNTn", "onFailure: ");
+                                }
+                            });
+                        }
+                    }).show();;
         });
         mBottomSheetDialog.show();
     }
@@ -424,7 +529,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                     @Override
                     public void execute(Object object) {
                         try {
-                            String name = Calendar.getInstance().getTimeInMillis() + ".jpeg";
+                            String name = Calendar.getInstance().getTimeInMillis() + ".png";
                             File image = Util.convertBitmapToFile(FileExploreActivity.this, imageBitmap, name);
                             FileModel temp = mUserSession.createNewFile(name, Constant.FileType.PNG);
                             mRequestHelper.saveFile(Util.convertToFileDto(temp), new Callback<ResponseBody>() {
@@ -441,6 +546,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                                     if (response.isSuccessful()) {
                                                         mUserSession.getFiles().add(temp);
                                                         ((AwareDataStateChange)getCurrentDisplayFragment()).onDataCreated(temp);
+                                                        notifySearchDataChanged(temp, Constant.ACTION_CREATE);
                                                     } else {
                                                         Util.getMessageDialog(FileExploreActivity.this, response.body().toString(), null);
                                                     }
@@ -494,7 +600,19 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                                 if (response.isSuccessful()) {
                                                     mUserSession.getFiles().add(temp);
                                                     ((AwareDataStateChange)getCurrentDisplayFragment()).onDataCreated(temp);
+                                                    notifySearchDataChanged(temp, Constant.ACTION_CREATE);
                                                 } else {
+                                                    mRequestHelper.deleteFile(temp.getId(), new Callback<ResponseBody>() {
+                                                        @Override
+                                                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                                            // Khong lam gi ca
+                                                        }
+
+                                                        @Override
+                                                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                                            // Khong lam gi ca
+                                                        }
+                                                    });
                                                     Util.getMessageDialog(FileExploreActivity.this, response.errorBody().toString(), null);
                                                 }
                                             }
@@ -521,5 +639,15 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                 }).show();
             }
         }
+    }
+
+    private void notifySearchDataChanged(FileModel fileModel, int action) {
+        if (fileModel != null) {
+            mUserSession.updateStrFile(fileModel, action);
+        }
+
+        mSearchAdapter.clear();
+        mSearchAdapter.addAll(mUserSession.getStrFiles());
+        mSearchAdapter.notifyDataSetChanged();
     }
 }

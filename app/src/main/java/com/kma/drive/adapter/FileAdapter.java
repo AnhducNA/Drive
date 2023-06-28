@@ -58,10 +58,24 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
         if (file.isFavorite()) {
             Drawable drawable = mContext.get().getResources().getDrawable(R.drawable.ic_favorite);
             drawable.setBounds(0, 0, 20, 20);
-            holder.recentlyTimeTextView.setCompoundDrawables(drawable, null, null, null);
+            holder.recentlyTimeTextView.setCompoundDrawables(drawable, null, holder.recentlyTimeTextView.getCompoundDrawables()[2], null);
             holder.recentlyTimeTextView.setCompoundDrawablePadding(10);
         } else {
-            holder.recentlyTimeTextView.setCompoundDrawables(null, null, null, null);
+            holder.recentlyTimeTextView.setCompoundDrawables(null,
+                    holder.recentlyTimeTextView.getCompoundDrawables()[1],
+                    holder.recentlyTimeTextView.getCompoundDrawables()[2],
+                    holder.recentlyTimeTextView.getCompoundDrawables()[3]);
+        }
+        if (file.isShared()) {
+            Drawable drawable = mContext.get().getResources().getDrawable(R.drawable.baseline_person_24);
+            drawable.setBounds(0, 0, 20, 20);
+            holder.recentlyTimeTextView.setCompoundDrawables(holder.recentlyTimeTextView.getCompoundDrawables()[0], null, drawable, null);
+            holder.recentlyTimeTextView.setCompoundDrawablePadding(10);
+        } else {
+            holder.recentlyTimeTextView.setCompoundDrawables(holder.recentlyTimeTextView.getCompoundDrawables()[0],
+                    holder.recentlyTimeTextView.getCompoundDrawables()[1],
+                    null,
+                    holder.recentlyTimeTextView.getCompoundDrawables()[3]);
         }
         if (!mInViewFolder) {
             holder.functionButton.setVisibility(View.INVISIBLE);
