@@ -1,8 +1,11 @@
 package com.kma.drive.view.activity;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,9 +13,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
@@ -22,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -52,7 +54,9 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -170,7 +174,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
 
         // cai dat search textview - start
         mSearchAutoCompleteTextView = findViewById(R.id.sv_item_bar);
-        mSearchAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, mUserSession.getStrFiles());
+        mSearchAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, new ArrayList<>(mUserSession.getStrFiles()));
         mSearchAutoCompleteTextView.setAdapter(mSearchAdapter);
         mSearchAutoCompleteTextView.setOnItemClickListener((adapterView, view, i, l) -> {
             String fileName = (String) adapterView.getItemAtPosition(i);
@@ -234,6 +238,34 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
         //TODO event click vao avatar
         mUserAvatarImageView = findViewById(R.id.id_account);
         mUserAvatarImageView.setImageBitmap(Util.convertBase64ToBitmap(mUserSession.getUser().getAvatar()));
+        mUserAvatarImageView.setOnClickListener(view -> {
+            Dialog dialog = new Dialog(FileExploreActivity.this);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.setContentView(R.layout.dialog_info_user);
+
+            CircularImageView avatar = dialog.findViewById(R.id.iv_info_avatar);
+            TextView name = dialog.findViewById(R.id.tv_info_username);
+            TextView mail = dialog.findViewById(R.id.tv_info_email);
+            AppCompatButton logout = dialog.findViewById(R.id.bt_logout);
+
+            avatar.setImageBitmap(Util.convertBase64ToBitmap(mUserSession.getUser().getAvatar()));
+            name.setText(mUserSession.getUser().getUsername());
+            mail.setText(mUserSession.getUser().getEmail());
+            logout.setOnClickListener(view1 -> {
+                //TODO clean all data when logout
+                File storage = new File(getFilesDir() + "/" + mUserSession.getUser().getId());
+                if (storage != null) {
+                    Util.deleteFileOrFolder(storage);
+                }
+                mUserSession.clearSession();
+                Intent logoutIntent = new Intent(FileExploreActivity.this, LoginActivity.class);
+                logoutIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(logoutIntent);
+            });
+
+            dialog.show();
+        });
+
     }
 
     private void notifyFragmentDataDone() {
@@ -242,7 +274,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
             ((AwareDataStateChange) fragment).onDataLoadingFinished();
         }
         // Notify ca text search nua
-        mSearchAdapter.notifyDataSetChanged();
+        notifySearchDataChanged(null, 0);
     }
 
     private Fragment getCurrentDisplayFragment() {
@@ -264,19 +296,10 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
             for (int i = 0; i < mUserSession.getFiles().size(); i++) {
                 if (mUserSession.getFiles().get(i).getId() == fileModel.getId()) {
                     mUserSession.getFiles().set(i, fileModel);
-                    mUserSession.getStrFiles().set(i, fileModel.getFileName());
                 }
             }
             ((AwareDataStateChange)getCurrentDisplayFragment()).onDataStateChanged(fileModel);
-            mSearchAdapter.notifyDataSetChanged();
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // thuc hien cap nhat lai data search khi vua ve tu openFileActivity
-        notifySearchDataChanged(null, 0);
     }
 
     @Override
@@ -313,6 +336,12 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
             }
         }
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        notifySearchDataChanged(null, 0);
     }
 
     @Override
@@ -647,7 +676,9 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
         }
 
         mSearchAdapter.clear();
-        mSearchAdapter.addAll(mUserSession.getStrFiles());
+        mSearchAdapter.addAll(new ArrayList<>(mUserSession.getStrFiles()));
+        // temp list o day tranh tham chieu cua strFiles bi xoa sach
         mSearchAdapter.notifyDataSetChanged();
+        Log.d("MinhNTn", "notifySearchDataChanged: " + mSearchAdapter);
     }
 }
