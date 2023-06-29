@@ -5,6 +5,7 @@
     <string name="title_login">Đăng nhập</string>
     <string name="register_account"><u>Chưa có tài khoản? Đăng ký</u></string>
     <string name="title_register">Đăng ký</string>
+    <string name="title_logout">Đăng xuất</string>
     <string name="hint_password_confirm_input">Xác nhận mật khẩu</string>
     <string name="hint_email_input">Email</string>
     <string name="hint_username_input">Họ tên</string>

@@ -50,10 +50,6 @@ public class UserSession {
         return strFiles;
     }
 
-    public void setStrFiles(List<String> strFiles) {
-        this.strFiles = strFiles;
-    }
-
     public boolean isDataFetching() {
         return dataFetching;
     }
@@ -114,5 +110,12 @@ public class UserSession {
                 break;
             }
         }
+    }
+
+    public void clearSession() {
+        this.user = null;
+        this.files = null;
+        this.strFiles = null;
+        userSession = null;
     }
 }

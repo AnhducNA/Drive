@@ -19,6 +19,7 @@ import com.kma.drive.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.Date;
 
@@ -77,6 +78,11 @@ public class LoginFragment extends BaseAbstractFragment{
                                     object.getString(UserDto.AVATAR),
                                     object.getInt(UserDto.ID));
                             userSession.setUser(userDto);
+                            // dang nhap xong tao thu muc local cho user
+                            File folder = new File(mContext.get().getFilesDir(), String.valueOf(userDto.getId()));
+                            if (!folder.exists()) {
+                                folder.mkdirs();
+                            }
                             mCallback.doAnOrder(ORDER_LOGIN_SUCCESS);
                         } catch (JSONException e) {
                             throw new RuntimeException(e);

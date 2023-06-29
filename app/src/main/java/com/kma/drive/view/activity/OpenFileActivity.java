@@ -222,7 +222,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     InputStream inputStream = response.body().byteStream();
-                    File file = new File(getFilesDir(), fileDto.getFileName());
+                    File file = new File(getFilesDir() + "/" + mUserSession.getUser().getId(), fileDto.getFileName());
                     String result = Util.getFileFromInputStream(inputStream, file);
 
                     if (result == null) {

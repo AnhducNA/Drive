@@ -28,6 +28,7 @@
         <activity
             android:name=".view.activity.FileExploreActivity"
             android:exported="true"
+            android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />

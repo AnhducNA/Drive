@@ -375,4 +375,24 @@ public class Util {
             return new File(uri.getPath());
         }
     }
+
+    public static boolean deleteFileOrFolder(File fileToDel) {
+        if (fileToDel.exists()) {
+            if (fileToDel.isDirectory()) {
+                File[] files = fileToDel.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        if (file.isDirectory()) {
+                            deleteFileOrFolder(file);
+                        } else {
+                            file.delete();
+                        }
+                    }
+                }
+            }
+            return fileToDel.delete();
+        } else {
+            return true;
+        }
+    }
 }
