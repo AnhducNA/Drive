@@ -61,8 +61,8 @@ public class HttpRequestHelper {
         call.enqueue(callback);
     }
 
-    public void downloadFile(long fileId, Callback<ResponseBody> callback) {
-        Call<ResponseBody> call = mApiService.downloadFileById(fileId);
+    public void downloadFile(FileDto fileDto, Callback<ResponseBody> callback) {
+        Call<ResponseBody> call = mApiService.downloadFileById(fileDto);
         call.enqueue(callback);
     }
 

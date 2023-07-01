@@ -30,13 +30,19 @@ import com.kma.drive.common.Constant;
 import com.kma.drive.dto.FileDto;
 import com.kma.drive.model.FileModel;
 import com.kma.drive.session.UserSession;
+import com.kma.drive.util.FileUtil;
 import com.kma.drive.util.HttpRequestHelper;
 import com.kma.drive.util.Util;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Date;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -138,17 +144,35 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                 startActivity(backIntent);
             });
             mMoveConfirmButton.setOnClickListener(view -> {
+                // check trung file trong thu muc nay khi di chuyen file
+                if (FileUtil.checkFileNameExisted(mMovingFile.getFileName(), mOpenFile.getId(), mMovingFile.getOwner(), mUserSession.getFiles())) {
+                    Util.getMessageDialog(OpenFileActivity.this, "Có file với tên đã tồn tại", new Function() {
+                        @Override
+                        public void execute() {
+                            Intent backIntent = new Intent(OpenFileActivity.this, FileExploreActivity.class);
+                            backIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            startActivity(backIntent);
+                        }
+                    }).show();
+                    return;
+                }
                 mMovingFile.setDate(new Date(Calendar.getInstance().getTimeInMillis()));
                 mMovingFile.setParentId(mOpenFile.getId());
                 mMovingFile.setLocation(mNewLocation);
+                mMovingFile.setDate(new Date(Calendar.getInstance().getTimeInMillis()));
                 mRequestHelper.saveFile(Util.convertToFileDto(mMovingFile), new Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                         if (response.isSuccessful()) {
-                            Intent backIntent = new Intent(OpenFileActivity.this, FileExploreActivity.class);
-                            backIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                            backIntent.putExtra(EXTRA_UPDATE_FILE_LOCATION, mMovingFile);
-                            startActivity(backIntent);
+                            try {
+                                JSONArray array = new JSONArray(response.body().string());
+                                Util.updateDataChangedFromServer(array, mUserSession.getFiles());
+                                Intent backIntent = new Intent(OpenFileActivity.this, FileExploreActivity.class);
+                                backIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                startActivity(backIntent);
+                            } catch (JSONException | IOException | ParseException e) {
+                                // Loi
+                            }
                         } else {
                             Log.d("MinhNTn", "onResponse: ");
                         }
@@ -179,7 +203,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
             }
             mLoadingDataProgressBar.setVisibility(View.INVISIBLE);
         } else {
-            download(mOpenFile.getId(), mOpenFile);
+            download(mOpenFile);
         }
     }
 
@@ -187,6 +211,15 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
         mChildFiles.clear();
         mUserSession.getFileChildren(mOpenFile.getId(), mChildFiles, mCurrentReason == REASON_OPEN_FILE);
         if (mCurrentReason == REASON_MOVE_FILE) {
+            // Neu dang la di chuyen folder thi khong hien thi ban than no trong cay thu muc nua
+            if (mMovingFile != null && mMovingFile.getType().equals(Constant.FileType.FOLDER)) {
+                for (int i = 0; i < mChildFiles.size(); i++) {
+                    if (mChildFiles.get(i).getId() == mMovingFile.getId()) {
+                        mChildFiles.remove(i);
+                        break;
+                    }
+                }
+            }
             mChildFiles.remove(mOpenFile);
         }
         if (mFileAdapter != null) {
@@ -214,15 +247,16 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
         onDataStateChanged();
     }
 
-    private void download(long id, FileModel fileDto) {
+    private void download(FileModel fileModel) {
         //TODO check file co trong ay khong thi moi tai, khong thi thoi
-        //TODO download file nay chi tam thoi, nen xem xet xoa khi thoat app hoac dang xuat chang han
-        mRequestHelper.downloadFile(id, new Callback<ResponseBody>() {
+        fileModel.setDate(new Date(Calendar.getInstance().getTimeInMillis()));
+        FileDto fileDto = Util.convertToFileDto(fileModel);
+        mRequestHelper.downloadFile(fileDto, new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     InputStream inputStream = response.body().byteStream();
-                    File file = new File(getFilesDir() + "/" + mUserSession.getUser().getId(), fileDto.getFileName());
+                    File file = new File(getFilesDir() + "/" + mUserSession.getUser().getId(), fileModel.getFileName());
                     String result = Util.getFileFromInputStream(inputStream, file);
 
                     if (result == null) {
@@ -239,6 +273,17 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                         } catch (ActivityNotFoundException e) {
                             // TODO khong tim thay ung dung mo file thi hien thi text khong doc duoc...
                         }
+                    }
+                } else {
+                    try {
+                        Util.getMessageDialog(OpenFileActivity.this, response.errorBody().string(), new Function() {
+                            @Override
+                            public void execute() {
+                                finish();
+                            }
+                        }).show();
+                    } catch (IOException e) {
+
                     }
                 }
             }
@@ -310,12 +355,21 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                     getString(R.string.title_dialog_change_name_file), dtoFile.getFileName(), null, new Function() {
                         @Override
                         public void execute(Object object) {
-                            dtoFile.setFileName((String) object);
+                            String filename = (String) object;
+                            // Check trung ten file
+                            if (FileUtil.checkFileNameExisted(filename, dtoFile.getParentId(), dtoFile.getOwner(), mUserSession.getFiles())) {
+                                Util.getMessageDialog(OpenFileActivity.this, "Có file với tên đã tồn tại", null).show();
+                                return;
+                            }
+                            dtoFile.setFileName(filename);
+                            Date date = new Date(Calendar.getInstance().getTimeInMillis());
+                            dtoFile.setDate(date.toString());
                             mRequestHelper.saveFile(dtoFile, new Callback<ResponseBody>() {
                                 @Override
                                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                                     if (response.isSuccessful()) {
                                         currentFile.setFileName((String) object);
+                                        currentFile.setDate(date);
                                         mTargetFileNameTextView.setText(currentFile.getFileName());
                                         onDataStateChanged();
                                         mUserSession.updateStrFile(currentFile, Constant.ACTION_CHANGE_NAME);

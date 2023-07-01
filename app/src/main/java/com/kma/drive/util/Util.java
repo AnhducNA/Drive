@@ -27,6 +27,7 @@ import com.kma.drive.common.Constant;
 import com.kma.drive.dto.FileDto;
 import com.kma.drive.model.FileModel;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -43,6 +44,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class Util {
     public static final String convertBitmapToBase64(Bitmap bitmap) {
@@ -165,8 +167,8 @@ public class Util {
         titleTV.setText(title);
         ArrayList<String> data = new ArrayList<>();
         data.add("Xem");
-        data.add("Xóa");
-        data.add("Chia sẻ");
+//        data.add("Xóa");
+//        data.add("Chia sẻ");
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, data);
         spinner.setAdapter(arrayAdapter);
         negativeButton.setOnClickListener(view -> {
@@ -315,84 +317,29 @@ public class Util {
         return image;
     }
 
-    public static String getPathFromUri(Context context, Uri uri) {
-        String filePath = "";
-        if (uri != null) {
-            if (uri.getScheme().equals("content")) {
-                Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-                if (cursor != null && cursor.moveToFirst()) {
-                    int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA);
-                    filePath = cursor.getString(columnIndex);
-                    cursor.close();
-                }
-            } else if (uri.getScheme().equals("file")) {
-                filePath = uri.getPath();
-            }
+    public static void updateDataChangedFromServer(JSONArray array, List<FileModel> locals) throws JSONException, ParseException {
+        List<FileDto> dataChanged = new ArrayList<>();
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject file = array.getJSONObject(i);
+            FileDto fileDto = Util.convertFromJSON(file);
+            dataChanged.add(fileDto);
         }
-        return filePath;
-    }
-
-    public static String getFileNameFromUri(Context context, Uri uri) {
-        String fileName = null;
-
-        if (uri != null) {
-            Cursor cursor = null;
-            try {
-                String[] projection = {MediaStore.MediaColumns.DISPLAY_NAME};
-                cursor = context.getContentResolver().query(uri, projection, null, null, null);
-                if (cursor != null && cursor.moveToFirst()) {
-                    int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME);
-                    fileName = cursor.getString(columnIndex);
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
-            }
-        }
-
-        return fileName;
-    }
-
-    public static File getFileFromUri(Context context, Uri uri) {
-        String name = getFileNameFromUri(context, uri);
-        InputStream inputStream = null;
-        try {
-            inputStream = context.getContentResolver().openInputStream(uri);
-            File file = new File(context.getFilesDir(), name);
-
-            OutputStream outputStream = new FileOutputStream(file);
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-            outputStream.close();
-            inputStream.close();
-
-            return file;
-        } catch (IOException e) {
-            return new File(uri.getPath());
+        for (int i = 0; i < dataChanged.size(); i++) {
+            FileModel temp = getFileModelFromId(locals, dataChanged.get(i).getId());
+            //TODO Tam thoi ham nay se chi dung de cap nhat location thoi, ve sau can cap nhat them att nao thi code tiep
+            temp.setLocation(dataChanged.get(i).getLocation());
+            temp.setParentId(dataChanged.get(i).getParentId());
+            temp.setDate(convertStringToDate(dataChanged.get(i).getDate()));
         }
     }
 
-    public static boolean deleteFileOrFolder(File fileToDel) {
-        if (fileToDel.exists()) {
-            if (fileToDel.isDirectory()) {
-                File[] files = fileToDel.listFiles();
-                if (files != null) {
-                    for (File file : files) {
-                        if (file.isDirectory()) {
-                            deleteFileOrFolder(file);
-                        } else {
-                            file.delete();
-                        }
-                    }
-                }
+    public static FileModel getFileModelFromId(List<FileModel> list, long id) {
+        for (FileModel fileModel: list) {
+            if (fileModel.getId() == id) {
+                return fileModel;
             }
-            return fileToDel.delete();
-        } else {
-            return true;
         }
+
+        return null;
     }
 }

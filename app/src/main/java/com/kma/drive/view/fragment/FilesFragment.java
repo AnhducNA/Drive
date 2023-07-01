@@ -92,6 +92,9 @@ public class FilesFragment extends BaseAbstractFragment implements AwareDataStat
     @Override
     public void onDataStateChanged() {
         if (mFileAdapter != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                getFiles();
+            }
             mFileAdapter.notifyDataSetChanged();
             setVisibleEmptyView();
         }
@@ -99,7 +102,9 @@ public class FilesFragment extends BaseAbstractFragment implements AwareDataStat
 
     @Override
     public void onDataStateChanged(FileModel fileModel) {
-        getFiles();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            getFiles();
+        }
         onDataStateChanged();
     }
 

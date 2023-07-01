@@ -39,6 +39,7 @@ import com.kma.drive.common.Constant;
 import com.kma.drive.dto.FileDto;
 import com.kma.drive.model.FileModel;
 import com.kma.drive.session.UserSession;
+import com.kma.drive.util.FileUtil;
 import com.kma.drive.util.HttpRequestHelper;
 import com.kma.drive.util.Util;
 import com.kma.drive.view.custom.CircularImageView;
@@ -53,6 +54,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Date;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -122,6 +124,10 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                         @Override
                         public void execute(Object object) {
                             String folder = (String) object;
+                            // Kiem tra trung ten thu muc - check so voi cac thu muc nam trong cap root
+                            if (FileUtil.checkFileNameExisted(folder, Constant.ID_PARENT_DEFAULT, mUserSession.getUser().getId(), mUserSession.getFiles())) {
+                                Util.getMessageDialog(FileExploreActivity.this, "Có file với tên đã tồn tại", null).show();
+                            }
                             FileModel temp = mUserSession.createNewFile(folder, Constant.FileType.FOLDER);
                             FileDto fileDto = Util.convertToFileDto(temp);
                             mRequestHelper.saveFile(fileDto, new Callback<ResponseBody>() {
@@ -129,7 +135,8 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                                     if (response.isSuccessful()) {
                                         try {
-                                            JSONObject file = new JSONObject(response.body().string());
+                                            JSONArray array = new JSONArray(response.body().string());
+                                            JSONObject file = array.getJSONObject(0);
                                             FileDto tempDto = Util.convertFromJSON(file);
                                             if (tempDto != null) {
                                                 temp.setId(tempDto.getId());
@@ -255,7 +262,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                 //TODO clean all data when logout
                 File storage = new File(getFilesDir() + "/" + mUserSession.getUser().getId());
                 if (storage != null) {
-                    Util.deleteFileOrFolder(storage);
+                    FileUtil.deleteFileOrFolder(storage);
                 }
                 mUserSession.clearSession();
                 Intent logoutIntent = new Intent(FileExploreActivity.this, LoginActivity.class);
@@ -291,15 +298,15 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        FileModel fileModel = intent.getParcelableExtra(OpenFileActivity.EXTRA_UPDATE_FILE_LOCATION, FileModel.class);
-        if (fileModel != null) {
-            for (int i = 0; i < mUserSession.getFiles().size(); i++) {
-                if (mUserSession.getFiles().get(i).getId() == fileModel.getId()) {
-                    mUserSession.getFiles().set(i, fileModel);
-                }
-            }
-            ((AwareDataStateChange)getCurrentDisplayFragment()).onDataStateChanged(fileModel);
-        }
+//        FileModel fileModel = intent.getParcelableExtra(OpenFileActivity.EXTRA_UPDATE_FILE_LOCATION, FileModel.class);
+//        if (fileModel != null) {
+//            for (int i = 0; i < mUserSession.getFiles().size(); i++) {
+//                if (mUserSession.getFiles().get(i).getId() == fileModel.getId()) {
+//                    mUserSession.getFiles().set(i, fileModel);
+//                }
+//            }
+        ((AwareDataStateChange)getCurrentDisplayFragment()).onDataStateChanged();
+//        }
     }
 
     @Override
@@ -435,12 +442,21 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                     getString(R.string.title_dialog_change_name_file), dtoFile.getFileName(), null, new Function() {
                         @Override
                         public void execute(Object object) {
-                            dtoFile.setFileName((String) object);
+                            String filename = (String) object;
+                            // Check trung ten file
+                            if (FileUtil.checkFileNameExisted(filename, dtoFile.getParentId(), dtoFile.getOwner(), mUserSession.getFiles())) {
+                                Util.getMessageDialog(FileExploreActivity.this, "Có file với tên đã tồn tại", null).show();
+                                return;
+                            }
+                            dtoFile.setFileName(filename);
+                            Date date = new Date(Calendar.getInstance().getTimeInMillis());
+                            dtoFile.setDate(date.toString());
                             mRequestHelper.saveFile(dtoFile, new Callback<ResponseBody>() {
                                 @Override
                                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                                     if (response.isSuccessful()) {
                                         currentFile.setFileName((String) object);
+                                        currentFile.setDate(date);
                                         mTargetFileNameTextView.setText(currentFile.getFileName());
                                         ((AwareDataStateChange)getCurrentDisplayFragment()).onDataStateChanged();
                                         //
@@ -566,7 +582,8 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                                     if (response.isSuccessful()) {
                                         try {
-                                            JSONObject object1 = new JSONObject(response.body().string());
+                                            JSONArray array = new JSONArray(response.body().string());
+                                            JSONObject object1 = array.getJSONObject(0);
                                             FileDto fileDto = Util.convertFromJSON(object1);
                                             temp.setId(fileDto.getId());
                                             mRequestHelper.uploadFile(temp.getId(), image, new Callback<ResponseBody>() {
@@ -607,12 +624,17 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                 }).show();
             } else if (requestCode == REQUEST_FILE_UPLOAD_CODE) {
                 Uri uri = data.getData();
-                String name = Util.getFileNameFromUri(this, uri);
-                File file = Util.getFileFromUri(this, uri);
+                String name = FileUtil.getFileNameFromUri(this, uri);
+                File file = FileUtil.getFileFromUri(this, uri);
                 Util.getOptionInputTextDialog(this, getString(R.string.upload_file), name, null, new Function() {
                     @Override
                     public void execute(Object object) {
                         String fileName = (String) object;
+                        // Check trung ten file
+                        if (FileUtil.checkFileNameExisted(fileName, Constant.ID_PARENT_DEFAULT, mUserSession.getUser().getId(), mUserSession.getFiles())) {
+                            Util.getMessageDialog(FileExploreActivity.this, "Có file với tên đã tồn tại", null).show();
+                            return;
+                        }
                         String type = getContentResolver().getType(uri);
                         FileModel temp = mUserSession.createNewFile(fileName, type);
                         mRequestHelper.saveFile(Util.convertToFileDto(temp), new Callback<ResponseBody>() {
@@ -620,7 +642,8 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                                 if (response.isSuccessful()) {
                                     try {
-                                        JSONObject object1 = new JSONObject(response.body().string());
+                                        JSONArray array = new JSONArray(response.body().string());
+                                        JSONObject object1 = array.getJSONObject(0);
                                         FileDto fileDto = Util.convertFromJSON(object1);
                                         temp.setId(fileDto.getId());
                                         mRequestHelper.uploadFile(temp.getId(), file, new Callback<ResponseBody>() {

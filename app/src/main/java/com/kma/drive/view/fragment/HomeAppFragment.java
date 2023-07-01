@@ -93,6 +93,9 @@ public class HomeAppFragment extends BaseAbstractFragment implements AwareDataSt
     @Override
     public void onDataStateChanged() {
         if (mFileAdapter != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                getRecentFiles();
+            }
             mFileAdapter.notifyDataSetChanged();
             setVisibleEmptyView();
         }

@@ -30,8 +30,8 @@ public interface ApiService {
     @GET("/api/file/files")
     Call<ResponseBody> getFilesByUserId(@Query(Constant.PARAM_USER_ID) String userId);
 
-    @GET("/api/file/download")
-    Call<ResponseBody> downloadFileById(@Query(Constant.PARAM_FILE_ID) long fileId);
+    @POST("/api/file/download")
+    Call<ResponseBody> downloadFileById(@Body FileDto fileDto);
 
     @POST("/api/file/save")
     Call<ResponseBody> saveFile(@Body FileDto fileDto);
