@@ -2,7 +2,9 @@ package com.kma.drive.view.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -10,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -90,6 +93,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
     // etc
     private UserSession mUserSession;
     protected HttpRequestHelper mRequestHelper;
+    private SharedPreferences mPreferences;
 
     private FloatingActionButton mAddFab;
     @SuppressLint("MissingInflatedId")
@@ -100,6 +104,10 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
 
         mUserSession = UserSession.getInstance();
         mRequestHelper = new HttpRequestHelper((mUserSession.getUser() == null)? null: mUserSession.getUser().getJwt());
+        mPreferences = getSharedPreferences(Constant.SHARE_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putString(Constant.JWT, mUserSession.getUser().getJwt());
+        editor.apply();
 
         // cai dat bottom sheet - start
         mBottomSheetDialog = new BottomSheetDialog(this);
@@ -149,7 +157,17 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                         }
 
                                     } else {
-                                        Util.getMessageDialog(FileExploreActivity.this, response.body().toString(), null);
+                                        try {
+                                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                                doOnValidationExpired();
+                                            }
+                                            if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                                Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                                            }
+
+                                        } catch (IOException e) {
+                                            //
+                                        }
                                     }
                                 }
 
@@ -199,6 +217,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
 
         // fetch files user tu server ve
         mUserSession.setDataFetching(true);
+        Log.d("MinhNTn", "onCreate: " + mUserSession.getUser().getJwt());
         mRequestHelper.getAllFilesForUser(mUserSession.getUser().getId(), new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -228,6 +247,17 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                         Log.d("MinhNTn", "onResponse: JSONE");
                     } catch (ParseException e) {
 
+                    }
+                } else {
+                    try {
+                        if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                            doOnValidationExpired();
+                        }
+                        if (!TextUtils.isEmpty(response.errorBody().string())) {
+                            Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                        }
+                    } catch (IOException e) {
+                        //
                     }
                 }
             }
@@ -260,14 +290,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
             mail.setText(mUserSession.getUser().getEmail());
             logout.setOnClickListener(view1 -> {
                 //TODO clean all data when logout
-                File storage = new File(getFilesDir() + "/" + mUserSession.getUser().getId());
-                if (storage != null) {
-                    FileUtil.deleteFileOrFolder(storage);
-                }
-                mUserSession.clearSession();
-                Intent logoutIntent = new Intent(FileExploreActivity.this, LoginActivity.class);
-                logoutIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(logoutIntent);
+                logout();
             });
 
             dialog.show();
@@ -418,9 +441,14 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                         ((AwareDataStateChange) fragment).onDataStateChanged();
                     } else {
                         try {
-                            Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                doOnValidationExpired();
+                            }
+                            if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                            }
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            //
                         }
                     }
                 }
@@ -463,9 +491,15 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                         notifySearchDataChanged(currentFile, Constant.ACTION_CHANGE_NAME);
                                     } else {
                                         try {
-                                            Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null);
+                                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                                doOnValidationExpired();
+                                            }
+                                            if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                                Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                                            }
+
                                         } catch (IOException e) {
-                                            throw new RuntimeException(e);
+                                            //
                                         }
                                     }
                                 }
@@ -493,9 +527,15 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                         notifySearchDataChanged(currentFile, Constant.ACTION_DELETE);
                     } else {
                         try {
-                            Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null);
+                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                doOnValidationExpired();
+                            }
+                            if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                            }
+
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            //
                         }
                     }
                     mBottomSheetDialog.hide();
@@ -539,10 +579,15 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                                 getString(R.string.message_share_file_success), null).show();
                                     } else {
                                         try {
-                                            Util.getMessageDialog(FileExploreActivity.this,
-                                                    response.errorBody().string(), null).show();
+                                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                                doOnValidationExpired();
+                                            }
+                                            if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                                Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                                            }
+
                                         } catch (IOException e) {
-                                            throw new RuntimeException(e);
+                                            //
                                         }
                                     }
                                 }
@@ -594,7 +639,17 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                                         ((AwareDataStateChange)getCurrentDisplayFragment()).onDataCreated(temp);
                                                         notifySearchDataChanged(temp, Constant.ACTION_CREATE);
                                                     } else {
-                                                        Util.getMessageDialog(FileExploreActivity.this, response.body().toString(), null);
+                                                        try {
+                                                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                                                doOnValidationExpired();
+                                                            }
+                                                            if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                                                Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                                                            }
+
+                                                        } catch (IOException e) {
+                                                            //
+                                                        }
                                                     }
                                                 }
 
@@ -607,7 +662,17 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                             //
                                         }
                                     } else {
-                                        Util.getMessageDialog(FileExploreActivity.this, response.body().toString(), null);
+                                        try {
+                                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                                doOnValidationExpired();
+                                            }
+                                            if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                                Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                                            }
+
+                                        } catch (IOException e) {
+                                            //
+                                        }
                                     }
                                 }
 
@@ -654,6 +719,13 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                                     ((AwareDataStateChange)getCurrentDisplayFragment()).onDataCreated(temp);
                                                     notifySearchDataChanged(temp, Constant.ACTION_CREATE);
                                                 } else {
+                                                    try {
+                                                        if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                                            doOnValidationExpired();
+                                                        }
+                                                    } catch (IOException e) {
+                                                        //
+                                                    }
                                                     mRequestHelper.deleteFile(temp.getId(), new Callback<ResponseBody>() {
                                                         @Override
                                                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -665,7 +737,13 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                                             // Khong lam gi ca
                                                         }
                                                     });
-                                                    Util.getMessageDialog(FileExploreActivity.this, response.errorBody().toString(), null);
+                                                    try {
+                                                        if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                                            Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                                                        }
+                                                    } catch (IOException e) {
+                                                        //
+                                                    }
                                                 }
                                             }
 
@@ -678,7 +756,16 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                         //
                                     }
                                 } else {
-                                    Util.getMessageDialog(FileExploreActivity.this, response.message(), null);
+                                    try {
+                                        if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                            doOnValidationExpired();
+                                        }
+                                        if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                            Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                                        }
+                                    } catch (IOException e) {
+                                        //
+                                    }
                                 }
                             }
 
@@ -703,5 +790,28 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
         // temp list o day tranh tham chieu cua strFiles bi xoa sach
         mSearchAdapter.notifyDataSetChanged();
         Log.d("MinhNTn", "notifySearchDataChanged: " + mSearchAdapter);
+    }
+
+    private void logout() {
+        SharedPreferences.Editor editor = mPreferences.edit();
+        editor.remove(Constant.JWT);
+        editor.apply();
+        File storage = new File(getFilesDir() + "/" + mUserSession.getUser().getId());
+        if (storage != null) {
+            FileUtil.deleteFileOrFolder(storage);
+        }
+        mUserSession.clearSession();
+        Intent logoutIntent = new Intent(FileExploreActivity.this, LoginActivity.class);
+        logoutIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(logoutIntent);
+    }
+
+    private void doOnValidationExpired() {
+        Util.getMessageDialog(this, getString(R.string.message_session_out), new Function() {
+            @Override
+            public void execute() {
+                logout();
+            }
+        }).show();
     }
 }

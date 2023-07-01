@@ -47,4 +47,7 @@ public interface ApiService {
     Call<ResponseBody> shareFile(@Query(Constant.PARAM_FILE_ID) long fileId,
                                  @Query(Constant.PARAM_SHARE_PERMISSION) int permission,
                                  @Query(Constant.PARAM_SHARE_EMAIL) String email);
+
+    @GET("/api/login")
+    Call<ResponseBody> login();
 }

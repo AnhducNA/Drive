@@ -26,11 +26,11 @@ public class LoginActivity extends AppCompatActivity implements FragmentCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
-        //TODO: man dau tien nen tao them splash screen nhung tam thoi vao man login truoc
+
         mLoginFragment = new LoginFragment();
-        mLoginFragment.setCallback(this);
+        mLoginFragment.setCallback(LoginActivity.this);
         mRegisterFragment = new RegisterFragment();
-        mRegisterFragment.setCallback(this);
+        mRegisterFragment.setCallback(LoginActivity.this);
 
         transactionFragment(R.id.main_container, mLoginFragment
                 , false, true

@@ -1,10 +1,13 @@
 package com.kma.drive.view.activity;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -91,6 +94,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
     private List<FileModel> mChildFiles;
     private int mCurrentReason;
     private String mNewLocation; // bien nay chi dung trong mode move file
+    private SharedPreferences mPreferences;
 
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
@@ -107,6 +111,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
 
         mUserSession = UserSession.getInstance();
         mRequestHelper = new HttpRequestHelper(mUserSession.getUser().getJwt());
+        mPreferences = getSharedPreferences(Constant.SHARE_PREF_NAME, Context.MODE_PRIVATE);
 
         // init view - start
         mCloseImageButton = findViewById(R.id.bt_close_file);
@@ -174,7 +179,16 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                                 // Loi
                             }
                         } else {
-                            Log.d("MinhNTn", "onResponse: ");
+                            try {
+                                if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                    doOnValidationExpired();
+                                }
+                                if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                    Util.getMessageDialog(OpenFileActivity.this, response.errorBody().string(), null).show();
+                                }
+                            } catch (IOException e) {
+                                //
+                            }
                         }
                     }
 
@@ -276,14 +290,15 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                     }
                 } else {
                     try {
-                        Util.getMessageDialog(OpenFileActivity.this, response.errorBody().string(), new Function() {
-                            @Override
-                            public void execute() {
-                                finish();
-                            }
-                        }).show();
-                    } catch (IOException e) {
+                        if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                            doOnValidationExpired();
+                        }
+                        if (!TextUtils.isEmpty(response.errorBody().string())) {
+                            Util.getMessageDialog(OpenFileActivity.this, response.errorBody().string(), null).show();
+                        }
 
+                    } catch (IOException e) {
+                        //
                     }
                 }
             }
@@ -334,7 +349,17 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                         }
                         onDataStateChanged();
                     } else {
-                        Util.getMessageDialog(OpenFileActivity.this, response.body().toString(), null);
+                        try {
+                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                doOnValidationExpired();
+                            }
+                            if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                Util.getMessageDialog(OpenFileActivity.this, response.errorBody().string(), null).show();
+                            }
+
+                        } catch (IOException e) {
+                            //
+                        }
                     }
                 }
 
@@ -374,7 +399,17 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                                         onDataStateChanged();
                                         mUserSession.updateStrFile(currentFile, Constant.ACTION_CHANGE_NAME);
                                     } else {
-                                        Util.getMessageDialog(OpenFileActivity.this, response.body().toString(), null);
+                                        try {
+                                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                                doOnValidationExpired();
+                                            }
+                                            if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                                Util.getMessageDialog(OpenFileActivity.this, response.errorBody().string(), null).show();
+                                            }
+
+                                        } catch (IOException e) {
+                                            //
+                                        }
                                     }
                                 }
 
@@ -401,7 +436,17 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                         onDataDeleted(currentFile);
                         mUserSession.updateStrFile(currentFile, Constant.ACTION_DELETE);
                     } else {
-                        Util.getMessageDialog(OpenFileActivity.this, response.body().toString(), null);
+                        try {
+                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                doOnValidationExpired();
+                            }
+                            if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                Util.getMessageDialog(OpenFileActivity.this, response.errorBody().string(), null).show();
+                            }
+
+                        } catch (IOException e) {
+                            //
+                        }
                     }
                 }
 
@@ -444,10 +489,15 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                                                 getString(R.string.message_share_file_success), null).show();
                                     } else {
                                         try {
-                                            Util.getMessageDialog(OpenFileActivity.this,
-                                                    response.errorBody().string(), null).show();
+                                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                                doOnValidationExpired();
+                                            }
+                                            if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                                Util.getMessageDialog(OpenFileActivity.this, response.errorBody().string(), null).show();
+                                            }
+
                                         } catch (IOException e) {
-                                            throw new RuntimeException(e);
+                                            //
                                         }
                                     }
                                 }
@@ -492,5 +542,28 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
         }
 
         return null;
+    }
+
+    private void logout() {
+        SharedPreferences.Editor editor = mPreferences.edit();
+        editor.remove(Constant.JWT);
+        editor.apply();
+        File storage = new File(getFilesDir() + "/" + mUserSession.getUser().getId());
+        if (storage != null) {
+            FileUtil.deleteFileOrFolder(storage);
+        }
+        mUserSession.clearSession();
+        Intent logoutIntent = new Intent(OpenFileActivity.this, LoginActivity.class);
+        logoutIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(logoutIntent);
+    }
+
+    private void doOnValidationExpired() {
+        Util.getMessageDialog(this, getString(R.string.message_session_out), new Function() {
+            @Override
+            public void execute() {
+                logout();
+            }
+        }).show();
     }
 }

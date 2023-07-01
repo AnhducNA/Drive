@@ -19,6 +19,7 @@ public class Constant {
     public static final String PARAM_FILE = "file";
     public static final String PARAM_SHARE_EMAIL = "email";
     public static final String PARAM_SHARE_PERMISSION = "permission";
+    public static final String PARAM_USER_ACCOUNT = "account";
 
     //
     public static final int MAX_RECENT_FILE_DISPLAY = 5;
@@ -31,6 +32,15 @@ public class Constant {
     public static final int ACTION_CHANGE_NAME = 112;
     public static final int ACTION_DELETE = 113;
     // action thao tac voi file - end
+
+    // share pref de luu jwt tren may - start
+    public static String SHARE_PREF_NAME = "dataPref";
+    public static String JWT = "jwt";
+    // share pref de luu jwt tren may - end
+    // message xac thuc het han - start
+    public static final String MESSAGE_AUTHENTICATION_FAIL = "MESSAGE_AUTHENTICATION_FAIL";
+    // message xac thuc het han - end
+
     public class FileType {
         public static final String DOC = "application/msword"; // file .dot
         public static final String DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
