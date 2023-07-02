@@ -432,7 +432,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
-                        mUserSession.getFiles().remove(currentFile);
+                        FileUtil.deleteFile(currentFile, mUserSession.getFiles());
                         onDataDeleted(currentFile);
                         mUserSession.updateStrFile(currentFile, Constant.ACTION_DELETE);
                     } else {

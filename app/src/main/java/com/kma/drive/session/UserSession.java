@@ -59,7 +59,7 @@ public class UserSession {
     }
 
     public FileModel createNewFile(String fileName, String type) {
-        return new FileModel(null, fileName, new Date(Calendar.getInstance().getTimeInMillis()), false, type,
+        return new FileModel(0, fileName, new Date(Calendar.getInstance().getTimeInMillis()), false, type,
                 user.getId(), null, Constant.ID_PARENT_DEFAULT, false);
     }
 

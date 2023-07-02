@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 
+import com.kma.drive.common.Constant;
 import com.kma.drive.model.FileModel;
 
 import java.io.File;
@@ -142,5 +143,27 @@ public class FileUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * Xoa file va neu la folder thi xoa het file con
+     * @param file
+     * @param list
+     * @return
+     */
+    public static void deleteFile(FileModel file, List<FileModel> list) {
+        if (file.getType().equals(Constant.FileType.FOLDER)) {
+            for (int i=0; i < list.size(); i++) {
+                final FileModel temp = list.get(i);
+                if (temp.getParentId() == file.getId()) {
+                    if (temp.getType().equals(Constant.FileType.FOLDER)) {
+                        deleteFile(temp, list);
+                    } else {
+                        list.remove(temp);
+                    }
+                }
+            }
+        }
+        list.remove(file);
     }
 }

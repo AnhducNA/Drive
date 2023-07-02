@@ -12,7 +12,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 
 public class FileModel implements Parcelable {
-    private Long id;
+    private long id;
     private String fileName;
     private Date date;
     private boolean favorite;
@@ -22,7 +22,7 @@ public class FileModel implements Parcelable {
     private long parentId;
     private boolean shared;
 
-    public FileModel(Long id, String fileName, Date date, boolean favorite, String type, long owner, String location, long parentId, boolean shared) {
+    public FileModel(long id, String fileName, Date date, boolean favorite, String type, long owner, String location, long parentId, boolean shared) {
         this.id = id;
         this.fileName = fileName;
         this.date = date;
@@ -35,11 +35,7 @@ public class FileModel implements Parcelable {
     }
 
     protected FileModel(Parcel in) {
-        if (in.readByte() == 0) {
-            id = null;
-        } else {
-            id = in.readLong();
-        }
+        id = in.readLong();
         try {
             date = Util.convertStringToDate(in.readString());
         } catch (ParseException e) {
@@ -66,11 +62,11 @@ public class FileModel implements Parcelable {
         }
     };
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -145,12 +141,7 @@ public class FileModel implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int i) {
-        if (id == null) {
-            parcel.writeByte((byte) 0);
-        } else {
-            parcel.writeByte((byte) 1);
-            parcel.writeLong(id);
-        }
+        parcel.writeLong(id);
         parcel.writeString(date.toString());
         parcel.writeString(fileName);
         parcel.writeByte((byte) (favorite ? 1 : 0));
