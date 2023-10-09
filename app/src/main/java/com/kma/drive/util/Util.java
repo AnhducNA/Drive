@@ -278,7 +278,8 @@ public class Util {
                 fileDto.getOwner(),
                 fileDto.getLocation(),
                 fileDto.getParentId(),
-                false);
+                false,
+                fileDto.getSize());
     }
 
     public static FileDto convertToFileDto(FileModel fileModel) {
@@ -289,23 +290,8 @@ public class Util {
                 fileModel.getType(),
                 fileModel.getOwner(),
                 fileModel.getLocation(),
-                fileModel.getParentId());
-    }
-
-    public static FileDto convertFromJSON(JSONObject object)  {
-        try {
-            FileDto fileDto = new FileDto((long) object.getInt(FileDto.ID),
-                    object.getString(FileDto.FILE_NAME),
-                    object.getString(FileDto.DATE),
-                    object.getBoolean(FileDto.FAVORITE),
-                    object.getString(FileDto.TYPE),
-                    object.getLong(FileDto.OWNER),
-                    object.getString(FileDto.LOCATION),
-                    object.getLong(FileDto.PARENT_ID));
-            return fileDto;
-        } catch (JSONException e) {
-            return null;
-        }
+                fileModel.getParentId(),
+                fileModel.getSize());
     }
 
     public static File convertBitmapToFile(Context context, Bitmap bitmap, String name) throws IOException {
@@ -317,13 +303,7 @@ public class Util {
         return image;
     }
 
-    public static void updateDataChangedFromServer(JSONArray array, List<FileModel> locals) throws JSONException, ParseException {
-        List<FileDto> dataChanged = new ArrayList<>();
-        for (int i = 0; i < array.length(); i++) {
-            JSONObject file = array.getJSONObject(i);
-            FileDto fileDto = Util.convertFromJSON(file);
-            dataChanged.add(fileDto);
-        }
+    public static void updateDataChangedFromServer(List<FileDto> dataChanged, List<FileModel> locals) throws ParseException {
         for (int i = 0; i < dataChanged.size(); i++) {
             FileModel temp = getFileModelFromId(locals, dataChanged.get(i).getId());
             //TODO Tam thoi ham nay se chi dung de cap nhat location thoi, ve sau can cap nhat them att nao thi code tiep

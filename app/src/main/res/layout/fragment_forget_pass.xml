@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_login">
+
+    <LinearLayout
+        android:id="@+id/ln_zone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nhập email để lấy lại mật khẩu:"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/et_mail_register"
+            android:layout_width="@dimen/edit_text_width"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/edittext_mail"
+            android:ellipsize="end"
+            android:hint="@string/hint_email_input"
+            android:inputType="textEmailAddress"
+            android:maxLines="@integer/line_of_edittext"
+            android:scrollHorizontally="true"
+            android:textColor="@color/black"
+            android:textColorHint="@color/gray" />
+    </LinearLayout>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bt_confirm"
+        android:layout_width="@dimen/button_login"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp"
+        android:background="@drawable/button_parent_effect"
+        android:text="@string/confirm"
+        android:textAllCaps="false"
+        android:layout_below="@id/ln_zone"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/white" />
+
+</RelativeLayout>

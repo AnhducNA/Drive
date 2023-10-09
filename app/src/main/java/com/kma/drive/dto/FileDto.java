@@ -1,5 +1,8 @@
 package com.kma.drive.dto;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class FileDto {
     public static final String ID = "id";
     public static final String FILE_NAME = "fileName";
@@ -9,17 +12,37 @@ public class FileDto {
     public static final String OWNER = "owner";
     public static final String LOCATION = "location";
     public static final String PARENT_ID = "parentId";
+    public static final String SIZE = "size";
 
+    @SerializedName(ID)
+    @Expose
     private Long id;
+    @SerializedName(FILE_NAME)
+    @Expose
     private String fileName;
+    @SerializedName(DATE)
+    @Expose
     private String date;
+    @SerializedName(FAVORITE)
+    @Expose
     private boolean favorite;
+    @SerializedName(TYPE)
+    @Expose
     private String type;
+    @SerializedName(OWNER)
+    @Expose
     private long owner;
+    @SerializedName(LOCATION)
+    @Expose
     private String location;
+    @SerializedName(PARENT_ID)
+    @Expose
     private long parentId;
+    @SerializedName(SIZE)
+    @Expose
+    private long size;
 
-    public FileDto(Long id, String fileName, String date, boolean favorite, String type, long owner, String location, long parentId) {
+    public FileDto(Long id, String fileName, String date, boolean favorite, String type, long owner, String location, long parentId, long size) {
         this.id = id;
         this.fileName = fileName;
         this.date = date;
@@ -28,6 +51,7 @@ public class FileDto {
         this.owner = owner;
         this.location = location;
         this.parentId = parentId;
+        this.size = size;
     }
 
     public Long getId() {
@@ -96,5 +120,13 @@ public class FileDto {
 
     public void setParentId(long parentId) {
         this.parentId = parentId;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 }

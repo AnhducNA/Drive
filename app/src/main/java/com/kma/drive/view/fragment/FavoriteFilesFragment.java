@@ -45,7 +45,6 @@ public class FavoriteFilesFragment extends BaseAbstractFragment implements Aware
         return R.layout.fav_files_fragment;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void doOnViewCreated(View view, Bundle bundle) {
         mFavoriteFilesRecyclerView = view.findViewById(R.id.rv_favorite_files);
@@ -77,7 +76,6 @@ public class FavoriteFilesFragment extends BaseAbstractFragment implements Aware
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onDataLoadingFinished() {
         getFavoriteFiles();
@@ -114,14 +112,21 @@ public class FavoriteFilesFragment extends BaseAbstractFragment implements Aware
         // file moi them vao mac dinh khong phai favorite nen khong can notifydatachage()
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private void getFavoriteFiles() {
         mFavoriteFiles.clear();
-        mUserSession.getFiles().stream().forEach(fileDto -> {
-            if (fileDto.isFavorite()) {
-                mFavoriteFiles.add(fileDto);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            mUserSession.getFiles().stream().forEach(fileModel -> {
+                if (fileModel.isFavorite()) {
+                    mFavoriteFiles.add(fileModel);
+                }
+            });
+        } else {
+            for (FileModel fileModel: mUserSession.getFiles()) {
+                if (fileModel.isFavorite()) {
+                    mFavoriteFiles.add(fileModel);
+                }
             }
-        });
+        }
         if (mFileAdapter != null) {
             mFileAdapter.notifyDataSetChanged();
         }

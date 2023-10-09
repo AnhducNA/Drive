@@ -59,8 +59,12 @@ public class UserSession {
     }
 
     public FileModel createNewFile(String fileName, String type) {
+        return createNewFile(fileName, type, 0);
+    }
+
+    public FileModel createNewFile(String fileName, String type, long size) {
         return new FileModel(0, fileName, new Date(Calendar.getInstance().getTimeInMillis()), false, type,
-                user.getId(), null, Constant.ID_PARENT_DEFAULT, false);
+                user.getId(), null, Constant.ID_PARENT_DEFAULT, false, size);
     }
 
     public void getFileChildren(long parentId, List<FileModel> dest, boolean addFiles) {
@@ -76,7 +80,7 @@ public class UserSession {
 
     public FileModel getRootFolder() {
         return new FileModel(0L, null, new Date(Calendar.getInstance().getTimeInMillis()), false, Constant.FileType.FOLDER, user.getId(),
-                null, Constant.ID_PARENT_DEFAULT, false);
+                null, Constant.ID_PARENT_DEFAULT, false, 0);
     }
 
     public FileModel getFileModelByFileName(String fileName) {

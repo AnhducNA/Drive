@@ -42,48 +42,41 @@ public class SplashActivity extends AppCompatActivity {
         // Check jwt dang nhap xem da het han hay chua thi moi can dang nhap lai
         mPreferences = getSharedPreferences(Constant.SHARE_PREF_NAME, Context.MODE_PRIVATE);
         String token = mPreferences.getString(Constant.JWT, null);
-        mRequestHelper = new HttpRequestHelper(token);
 
-        mRequestHelper.login(new Callback<ResponseBody>() {
+        // Check neu jwt khong con thi dua vao man login luon
+        if (token == null) {
+            startLoginActivity();
+        } else {
+            mRequestHelper = new HttpRequestHelper(token);
+            mRequestHelper.login(new Callback<UserDto>() {
 
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    JSONObject object = null;
-                    try {
-                        object = new JSONObject(response.body().string());
+                @Override
+                public void onResponse(Call<UserDto> call, Response<UserDto> response) {
+                    if (response.isSuccessful()) {
                         UserSession userSession = UserSession.getInstance();
-                        UserDto userDto = new UserDto(object.getString(UserDto.JWT),
-                                object.getString(UserDto.USER_NAME),
-                                new Date(10L),
-                                object.getString(UserDto.EMAIL),
-                                object.getString(UserDto.AVATAR),
-                                object.getInt(UserDto.ID));
-                        userSession.setUser(userDto);
+                        userSession.setUser(response.body());
                         // dang nhap xong tao thu muc local cho user
-                        File folder = new File(getFilesDir(), String.valueOf(userDto.getId()));
+                        File folder = new File(getFilesDir(), String.valueOf(response.body().getId()));
                         if (!folder.exists()) {
                             folder.mkdirs();
                         }
                         startFileExploreActivity();
-                    } catch (JSONException | IOException e) {
-                        //
+                    } else {
+                        Util.getMessageDialog(SplashActivity.this, getString(R.string.message_session_out), new Function() {
+                            @Override
+                            public void execute() {
+                                startLoginActivity();
+                            }
+                        }).show();
                     }
-                } else {
-                    Util.getMessageDialog(SplashActivity.this, getString(R.string.message_session_out), new Function() {
-                        @Override
-                        public void execute() {
-                            startLoginActivity();
-                        }
-                    }).show();
                 }
-            }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Util.getMessageDialog(SplashActivity.this, t.getMessage(), null).show();
-            }
-        });
+                @Override
+                public void onFailure(Call<UserDto> call, Throwable t) {
+                    Util.getMessageDialog(SplashActivity.this, t.getMessage(), null).show();
+                }
+            });
+        }
     }
 
     private void startLoginActivity() {

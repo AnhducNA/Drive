@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
@@ -24,7 +23,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
@@ -34,6 +32,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.kma.drive.R;
 import com.kma.drive.callback.AwareDataStateChange;
 import com.kma.drive.callback.FragmentCallback;
@@ -50,10 +49,6 @@ import com.kma.drive.view.fragment.FavoriteFilesFragment;
 import com.kma.drive.view.fragment.FilesFragment;
 import com.kma.drive.view.fragment.HomeAppFragment;
 import com.kma.drive.view.fragment.SharedFilesFragment;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -138,24 +133,17 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                             }
                             FileModel temp = mUserSession.createNewFile(folder, Constant.FileType.FOLDER);
                             FileDto fileDto = Util.convertToFileDto(temp);
-                            mRequestHelper.saveFile(fileDto, new Callback<ResponseBody>() {
+                            mRequestHelper.saveFile(fileDto, new Callback<List<FileDto>>() {
                                 @Override
-                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                public void onResponse(Call<List<FileDto>> call, Response<List<FileDto>> response) {
                                     if (response.isSuccessful()) {
-                                        try {
-                                            JSONArray array = new JSONArray(response.body().string());
-                                            JSONObject file = array.getJSONObject(0);
-                                            FileDto tempDto = Util.convertFromJSON(file);
-                                            if (tempDto != null) {
-                                                temp.setId(tempDto.getId());
-                                                mUserSession.getFiles().add(temp);
-                                                ((AwareDataStateChange)getCurrentDisplayFragment()).onDataCreated(temp);
-                                                notifySearchDataChanged(temp, Constant.ACTION_CREATE);
-                                            }
-                                        } catch (JSONException | IOException e) {
-                                            //TODO
+                                        FileDto tempDto = response.body().get(0);
+                                        if (tempDto != null) {
+                                            temp.setId(tempDto.getId());
+                                            mUserSession.getFiles().add(temp);
+                                            ((AwareDataStateChange)getCurrentDisplayFragment()).onDataCreated(temp);
+                                            notifySearchDataChanged(temp, Constant.ACTION_CREATE);
                                         }
-
                                     } else {
                                         try {
                                             if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
@@ -164,7 +152,6 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                             if (!TextUtils.isEmpty(response.errorBody().string())) {
                                                 Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
                                             }
-
                                         } catch (IOException e) {
                                             //
                                         }
@@ -172,7 +159,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                 }
 
                                 @Override
-                                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                public void onFailure(Call<List<FileDto>> call, Throwable t) {
 
                                 }
                             });
@@ -217,19 +204,14 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
 
         // fetch files user tu server ve
         mUserSession.setDataFetching(true);
-        Log.d("MinhNTn", "onCreate: " + mUserSession.getUser().getJwt());
-        mRequestHelper.getAllFilesForUser(mUserSession.getUser().getId(), new Callback<ResponseBody>() {
+        mRequestHelper.getAllFilesForUser(mUserSession.getUser().getId(), new Callback<List<FileDto>>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(Call<List<FileDto>> call, Response<List<FileDto>> response) {
                 if (response.isSuccessful()) {
                     try {
-                        JSONArray array = new JSONArray(response.body().string());
-                        for (int i = 0; i < array.length(); i++) {
-                            JSONObject file = array.getJSONObject(i);
-
-                            FileDto fileDto = Util.convertFromJSON(file);
-
-                            FileModel fileModel = Util.convertToFileModel(fileDto);
+                        List<FileDto> list = response.body();
+                        for (int i = 0; i < list.size(); i++) {
+                            FileModel fileModel = Util.convertToFileModel(list.get(i));
                             fileModel.setShared(fileModel.getOwner() != mUserSession.getUser().getId());
                             if (fileModel.isShared() ) {
                                 fileModel.setParentId(Constant.ID_PARENT_DEFAULT);
@@ -240,11 +222,6 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                         mUserSession.setDataFetching(false);
                         // Data fetch xong thi goi fragment dang hien thi load ra
                         notifyFragmentDataDone();
-                    } catch (IOException e) {
-                        //TODO handle
-                    } catch (JSONException e) {
-                        //TODO handle
-                        Log.d("MinhNTn", "onResponse: JSONE");
                     } catch (ParseException e) {
 
                     }
@@ -263,7 +240,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<List<FileDto>> call, Throwable t) {
                 Log.d("MinhNTn", "onFailure: ");
             }
         });
@@ -284,6 +261,8 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
             TextView name = dialog.findViewById(R.id.tv_info_username);
             TextView mail = dialog.findViewById(R.id.tv_info_email);
             AppCompatButton logout = dialog.findViewById(R.id.bt_logout);
+            LinearProgressIndicator usageProgress = dialog.findViewById(R.id.pb_storage_used);
+            TextView usageText = dialog.findViewById(R.id.tv_storage_used);
 
             avatar.setImageBitmap(Util.convertBase64ToBitmap(mUserSession.getUser().getAvatar()));
             name.setText(mUserSession.getUser().getUsername());
@@ -292,6 +271,10 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                 //TODO clean all data when logout
                 logout();
             });
+            double progress = (mUserSession.getUser().getStorageUsage() * 1.0/ Constant.MAX_STORAGE) * 100;
+            usageProgress.setProgress((int) progress);
+            String usage = getString(R.string.storage_used, mUserSession.getUser().getStorageUsage()/1000000, Constant.MAX_STORAGE/1000000);
+            usageText.setText(usage);
 
             dialog.show();
         });
@@ -309,15 +292,13 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
 
     private Fragment getCurrentDisplayFragment() {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        Fragment fragment = fragmentManager.findFragmentById(R.id.main_app_container);
-        return fragment;
+        return fragmentManager.findFragmentById(R.id.main_app_container);
     }
 
     private void showBottomSheetDialog() {
         mBottomSheetNewFileDialog.show();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -409,7 +390,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
     }
 
     @Override
-    public void doAnOrder(int order) {
+    public void doAnOrder(String order) {
         mBottomSheetDialog.show();
     }
 
@@ -427,9 +408,9 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
         mFavoriteFunctionTextView.setOnClickListener(view -> {
             FileDto dtoFile = Util.convertToFileDto(currentFile);
             dtoFile.setFavorite(!dtoFile.isFavorite());
-            mRequestHelper.saveFile(dtoFile, new Callback<ResponseBody>() {
+            mRequestHelper.saveFile(dtoFile, new Callback<List<FileDto>>() {
                 @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                public void onResponse(Call<List<FileDto>> call, Response<List<FileDto>> response) {
                     if (response.isSuccessful()) {
                         currentFile.setFavorite(!currentFile.isFavorite());
                         if (currentFile.isFavorite()) {
@@ -454,7 +435,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                 }
 
                 @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                public void onFailure(Call<List<FileDto>> call, Throwable t) {
 
                 }
             });
@@ -479,9 +460,9 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                             dtoFile.setFileName(filename);
                             Date date = new Date(Calendar.getInstance().getTimeInMillis());
                             dtoFile.setDate(date.toString());
-                            mRequestHelper.saveFile(dtoFile, new Callback<ResponseBody>() {
+                            mRequestHelper.saveFile(dtoFile, new Callback<List<FileDto>>() {
                                 @Override
-                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                public void onResponse(Call<List<FileDto>> call, Response<List<FileDto>> response) {
                                     if (response.isSuccessful()) {
                                         currentFile.setFileName((String) object);
                                         currentFile.setDate(date);
@@ -505,7 +486,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                 }
 
                                 @Override
-                                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                public void onFailure(Call<List<FileDto>> call, Throwable t) {
                                     //TODO
                                 }
                             });
@@ -621,46 +602,43 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                         try {
                             String name = Calendar.getInstance().getTimeInMillis() + ".png";
                             File image = Util.convertBitmapToFile(FileExploreActivity.this, imageBitmap, name);
-                            FileModel temp = mUserSession.createNewFile(name, Constant.FileType.PNG);
-                            mRequestHelper.saveFile(Util.convertToFileDto(temp), new Callback<ResponseBody>() {
+                            FileModel temp = mUserSession.createNewFile(name, Constant.FileType.PNG, image.length());
+                            mRequestHelper.saveFile(Util.convertToFileDto(temp), new Callback<List<FileDto>>() {
                                 @Override
-                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                public void onResponse(Call<List<FileDto>> call, Response<List<FileDto>> response) {
                                     if (response.isSuccessful()) {
-                                        try {
-                                            JSONArray array = new JSONArray(response.body().string());
-                                            JSONObject object1 = array.getJSONObject(0);
-                                            FileDto fileDto = Util.convertFromJSON(object1);
-                                            temp.setId(fileDto.getId());
-                                            mRequestHelper.uploadFile(temp.getId(), image, new Callback<ResponseBody>() {
-                                                @Override
-                                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                                    if (response.isSuccessful()) {
-                                                        mUserSession.getFiles().add(temp);
-                                                        ((AwareDataStateChange)getCurrentDisplayFragment()).onDataCreated(temp);
-                                                        notifySearchDataChanged(temp, Constant.ACTION_CREATE);
-                                                    } else {
-                                                        try {
-                                                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
-                                                                doOnValidationExpired();
-                                                            }
-                                                            if (!TextUtils.isEmpty(response.errorBody().string())) {
-                                                                Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
-                                                            }
-
-                                                        } catch (IOException e) {
-                                                            //
+                                        FileDto fileDto = response.body().get(0);
+                                        temp.setId(fileDto.getId());
+                                        mRequestHelper.uploadFile(temp.getId(), image, new Callback<ResponseBody>() {
+                                            @Override
+                                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                                if (response.isSuccessful()) {
+                                                    // cap nhat lai dung luong
+                                                    long size = mUserSession.getUser().getStorageUsage();
+                                                    mUserSession.getUser().setStorageUsage(size + image.length());
+                                                    mUserSession.getFiles().add(temp);
+                                                    ((AwareDataStateChange)getCurrentDisplayFragment()).onDataCreated(temp);
+                                                    notifySearchDataChanged(temp, Constant.ACTION_CREATE);
+                                                } else {
+                                                    try {
+                                                        if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                                            doOnValidationExpired();
                                                         }
+                                                        if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                                            Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                                                        }
+
+                                                    } catch (IOException e) {
+                                                        //
                                                     }
                                                 }
+                                            }
 
-                                                @Override
-                                                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                            @Override
+                                            public void onFailure(Call<ResponseBody> call, Throwable t) {
 
-                                                }
-                                            },image.getName());
-                                        } catch (JSONException | IOException e) {
-                                            //
-                                        }
+                                            }
+                                        },image.getName());
                                     } else {
                                         try {
                                             if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
@@ -677,7 +655,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                 }
 
                                 @Override
-                                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                public void onFailure(Call<List<FileDto>> call, Throwable t) {
 
                                 }
                             });
@@ -701,67 +679,64 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                             return;
                         }
                         String type = getContentResolver().getType(uri);
-                        FileModel temp = mUserSession.createNewFile(fileName, type);
-                        mRequestHelper.saveFile(Util.convertToFileDto(temp), new Callback<ResponseBody>() {
+                        FileModel temp = mUserSession.createNewFile(fileName, type, file.length());
+                        mRequestHelper.saveFile(Util.convertToFileDto(temp), new Callback<List<FileDto>>() {
                             @Override
-                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                            public void onResponse(Call<List<FileDto>> call, Response<List<FileDto>> response) {
                                 if (response.isSuccessful()) {
-                                    try {
-                                        JSONArray array = new JSONArray(response.body().string());
-                                        JSONObject object1 = array.getJSONObject(0);
-                                        FileDto fileDto = Util.convertFromJSON(object1);
-                                        temp.setId(fileDto.getId());
-                                        mRequestHelper.uploadFile(temp.getId(), file, new Callback<ResponseBody>() {
-                                            @Override
-                                            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                                if (response.isSuccessful()) {
-                                                    mUserSession.getFiles().add(temp);
-                                                    ((AwareDataStateChange)getCurrentDisplayFragment()).onDataCreated(temp);
-                                                    notifySearchDataChanged(temp, Constant.ACTION_CREATE);
-                                                } else {
-                                                    try {
-                                                        if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
-                                                            doOnValidationExpired();
-                                                        }
-                                                    } catch (IOException e) {
-                                                        //
+                                    FileDto fileDto = response.body().get(0);
+                                    temp.setId(fileDto.getId());
+                                    mRequestHelper.uploadFile(temp.getId(), file, new Callback<ResponseBody>() {
+                                        @Override
+                                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                            if (response.isSuccessful()) {
+                                                // cap nhat dung luong
+                                                long size = mUserSession.getUser().getStorageUsage();
+                                                mUserSession.getUser().setStorageUsage(size + file.length());
+                                                mUserSession.getFiles().add(temp);
+                                                ((AwareDataStateChange)getCurrentDisplayFragment()).onDataCreated(temp);
+                                                notifySearchDataChanged(temp, Constant.ACTION_CREATE);
+                                            } else {
+                                                try {
+                                                    if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                                        doOnValidationExpired();
                                                     }
-                                                    mRequestHelper.deleteFile(temp.getId(), new Callback<ResponseBody>() {
-                                                        @Override
-                                                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                                            // Khong lam gi ca
-                                                        }
+                                                } catch (IOException e) {
+                                                    //
+                                                }
+                                                mRequestHelper.deleteFile(temp.getId(), new Callback<ResponseBody>() {
+                                                    @Override
+                                                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                                        // Khong lam gi ca
+                                                    }
 
-                                                        @Override
-                                                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-                                                            // Khong lam gi ca
-                                                        }
-                                                    });
-                                                    try {
-                                                        if (!TextUtils.isEmpty(response.errorBody().string())) {
-                                                            Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
-                                                        }
-                                                    } catch (IOException e) {
-                                                        //
+                                                    @Override
+                                                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                                        // Khong lam gi ca
                                                     }
+                                                });
+                                                try {
+                                                    if (!TextUtils.isEmpty(response.errorBody().string())) {
+                                                        Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                                                    }
+                                                } catch (IOException e) {
+                                                    //
                                                 }
                                             }
+                                        }
 
-                                            @Override
-                                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                        @Override
+                                        public void onFailure(Call<ResponseBody> call, Throwable t) {
 
-                                            }
-                                        }, fileName);
-                                    } catch (JSONException | IOException e) {
-                                        //
-                                    }
+                                        }
+                                    }, fileName);
                                 } else {
                                     try {
-                                        if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                        String error = response.errorBody().string();
+                                        if (error.equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
                                             doOnValidationExpired();
-                                        }
-                                        if (!TextUtils.isEmpty(response.errorBody().string())) {
-                                            Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                                        } else if (!TextUtils.isEmpty(error)) {
+                                            Util.getMessageDialog(FileExploreActivity.this, error, null).show();
                                         }
                                     } catch (IOException e) {
                                         //
@@ -770,7 +745,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                             }
 
                             @Override
-                            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                            public void onFailure(Call<List<FileDto>> call, Throwable t) {
 
                             }
                         });

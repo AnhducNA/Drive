@@ -39,4 +39,7 @@
     <string name="search_hint">Tìm kiếm</string>
     <string name="app_label">Store</string>
     <string name="title_search">Search</string>
+    <string name="storage_used">Dung lượng đã dùng: %d / %d MB</string>
+    <string name="forget_password"><u>Quên mật khẩu</u></string>
+    <string name="confirm">Xác nhận</string>
 </resources>

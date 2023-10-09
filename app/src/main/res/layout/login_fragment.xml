@@ -18,51 +18,69 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/et_account_login"
-        android:layout_width="@dimen/edit_text_width"
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/edittext_account"
-        android:ellipsize="end"
-        android:hint="@string/hint_account_input"
-        android:maxLines="@integer/line_of_edittext"
-        android:scrollHorizontally="true"
-        android:textColor="@color/black"
-        android:textColorHint="@color/gray"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:id="@+id/ln_login_zone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_title_login" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_title_login">
+        <EditText
+            android:inputType="text"
+            android:id="@+id/et_account_login"
+            android:layout_width="@dimen/edit_text_width"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/edittext_account"
+            android:ellipsize="end"
+            android:hint="@string/hint_account_input"
+            android:maxLines="@integer/line_of_edittext"
+            android:scrollHorizontally="true"
+            android:textColor="@color/black"
+            android:textColorHint="@color/gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_title_login" />
 
-    <EditText
-        android:id="@+id/et_password_login"
-        android:layout_width="@dimen/edit_text_width"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/edittext_password"
-        android:ellipsize="end"
-        android:hint="@string/hint_password_input"
-        android:inputType="textPassword"
-        android:maxLines="@integer/line_of_edittext"
-        android:scrollHorizontally="true"
-        android:textColor="@color/black"
-        android:textColorHint="@color/gray"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/et_account_login" />
+        <EditText
+            android:id="@+id/et_password_login"
+            android:layout_width="@dimen/edit_text_width"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/edittext_password"
+            android:ellipsize="end"
+            android:hint="@string/hint_password_input"
+            android:inputType="textPassword"
+            android:maxLines="@integer/line_of_edittext"
+            android:scrollHorizontally="true"
+            android:textColor="@color/black"
+            android:textColorHint="@color/gray" />
+
+        <TextView
+            android:id="@+id/tv_forget_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:clickable="true"
+            android:text="@string/forget_password"
+            android:textColor="@color/black"
+            android:layout_marginTop="8dp"
+            android:focusable="true" />
+    </LinearLayout>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/bt_login"
         android:layout_width="@dimen/button_login"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="40dp"
         android:background="@drawable/button_parent_effect"
         android:text="@string/title_login"
         android:textAllCaps="false"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/et_password_login" />
+        app:layout_constraintTop_toBottomOf="@id/ln_login_zone" />
 
     <TextView
         android:id="@+id/tv_register_account"

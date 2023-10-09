@@ -26,7 +26,7 @@
         android:background="@drawable/plain_edittext"
         android:ellipsize="end"
         android:hint="Email chia sẻ"
-        android:inputType="textMultiLine|textEmailAddress"
+        android:inputType="textEmailAddress"
         android:maxLines="@integer/line_of_edittext"
         android:scrollHorizontally="true"
         android:textColor="@color/black" />

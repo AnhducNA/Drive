@@ -38,7 +38,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class RegisterFragment extends BaseAbstractFragment{
-    public static final int ORDER_REGISTER_DONE = 3;
+    public static final String ORDER_REGISTER_DONE = "ORDER_REGISTER_DONE";
     public static final int GET_LOCAL_IMAGE = 1;
     public static final int GET_LOCAL_IMAGE_CODE = 11;
 
@@ -161,7 +161,7 @@ public class RegisterFragment extends BaseAbstractFragment{
                                         }
                                     }).show();
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+//                            throw new RuntimeException(e);
                         }
                     }
                 }
@@ -221,10 +221,8 @@ public class RegisterFragment extends BaseAbstractFragment{
                                             }
                                         }
                                     }).show();
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                } catch (JSONException e) {
-                                    throw new RuntimeException(e);
+                                } catch (IOException | JSONException e) {
+//                                    throw new RuntimeException(e);
                                 }
                             } else {
                                 //TODO trong truong hop fail

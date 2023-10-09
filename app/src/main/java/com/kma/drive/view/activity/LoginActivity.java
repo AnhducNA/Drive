@@ -15,12 +15,14 @@ import com.kma.drive.R;
 import com.kma.drive.callback.FragmentCallback;
 import com.kma.drive.common.Constant;
 import com.kma.drive.view.fragment.BaseAbstractFragment;
+import com.kma.drive.view.fragment.ForgetPasswordFragment;
 import com.kma.drive.view.fragment.LoginFragment;
 import com.kma.drive.view.fragment.RegisterFragment;
 
 public class LoginActivity extends AppCompatActivity implements FragmentCallback {
     private BaseAbstractFragment mLoginFragment;
     private BaseAbstractFragment mRegisterFragment;
+    private BaseAbstractFragment mForgetPassFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +33,8 @@ public class LoginActivity extends AppCompatActivity implements FragmentCallback
         mLoginFragment.setCallback(LoginActivity.this);
         mRegisterFragment = new RegisterFragment();
         mRegisterFragment.setCallback(LoginActivity.this);
+        mForgetPassFragment = new ForgetPasswordFragment();
+        mForgetPassFragment.setCallback(this);
 
         transactionFragment(R.id.main_container, mLoginFragment
                 , false, true
@@ -67,7 +71,7 @@ public class LoginActivity extends AppCompatActivity implements FragmentCallback
     }
 
     @Override
-    public void doAnOrder(int order) {
+    public void doAnOrder(String order) {
         switch (order) {
             case LoginFragment.ORDER_REGISTER_ACCOUNT: {
                 transactionFragment(R.id.main_container,
@@ -85,6 +89,12 @@ public class LoginActivity extends AppCompatActivity implements FragmentCallback
             }
             case RegisterFragment.ORDER_REGISTER_DONE: {
                 getSupportFragmentManager().popBackStack();
+                break;
+            }
+            case LoginFragment.ORDER_FORGET_PASS: {
+                transactionFragment(R.id.main_container,
+                        mForgetPassFragment, true, true,
+                        R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_left, R.anim.exit_to_right);
                 break;
             }
         }

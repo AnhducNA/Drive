@@ -29,12 +29,14 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LoginFragment extends BaseAbstractFragment{
-    public static final int ORDER_REGISTER_ACCOUNT = 1;
-    public static final int ORDER_LOGIN_SUCCESS = 2;
+    public static final String ORDER_REGISTER_ACCOUNT = "ORDER_REGISTER_ACCOUNT";
+    public static final String ORDER_LOGIN_SUCCESS = "ORDER_LOGIN_SUCCESS";
+    public static final String ORDER_FORGET_PASS = "ORDER_FORGET_PASS";
     private EditText mAccountEditText;
     private EditText mPasswordEditText;
     private AppCompatButton mLoginButton;
     private TextView mRegisterTextView;
+    private TextView mForgetPasswordTextView;
 
     @Override
     protected int getLayout() {
@@ -47,9 +49,14 @@ public class LoginFragment extends BaseAbstractFragment{
         mPasswordEditText = view.findViewById(R.id.et_password_login);
         mLoginButton = view.findViewById(R.id.bt_login);
         mRegisterTextView = view.findViewById(R.id.tv_register_account);
+        mForgetPasswordTextView= view.findViewById(R.id.tv_forget_password);
 
         mRegisterTextView.setOnClickListener(view1 -> {
             mCallback.doAnOrder(ORDER_REGISTER_ACCOUNT);
+        });
+
+        mForgetPasswordTextView.setOnClickListener(view1 -> {
+            mCallback.doAnOrder(ORDER_FORGET_PASS);
         });
 
         mLoginButton.setOnClickListener(view1 -> {
@@ -59,36 +66,21 @@ public class LoginFragment extends BaseAbstractFragment{
             if (TextUtils.isEmpty(account) || TextUtils.isEmpty(password)) {
                 return;
             }
-
             mLoginButton.setEnabled(false);
-
             UserLoginDto userLoginDto = new UserLoginDto(account, password);
-            mRequestHelper.login(userLoginDto, new Callback<ResponseBody>() {
+            mRequestHelper.login(userLoginDto, new Callback<UserDto>() {
                 @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                public void onResponse(Call<UserDto> call, Response<UserDto> response) {
                     if (response.isSuccessful()) {
-                        try {
-                            // Login thanh cong fetch data user thanh cong nay va luu lam session hien tai
-                            JSONObject object = new JSONObject(response.body().string());
-                            UserSession userSession = UserSession.getInstance();
-                            UserDto userDto = new UserDto(object.getString(UserDto.JWT),
-                                    object.getString(UserDto.USER_NAME),
-                                    new Date(10L),
-                                    object.getString(UserDto.EMAIL),
-                                    object.getString(UserDto.AVATAR),
-                                    object.getInt(UserDto.ID));
-                            userSession.setUser(userDto);
-                            // dang nhap xong tao thu muc local cho user
-                            File folder = new File(mContext.get().getFilesDir(), String.valueOf(userDto.getId()));
-                            if (!folder.exists()) {
-                                folder.mkdirs();
-                            }
-                            mCallback.doAnOrder(ORDER_LOGIN_SUCCESS);
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+                        // Login thanh cong fetch data user thanh cong nay va luu lam session hien tai
+                        UserSession userSession = UserSession.getInstance();
+                        userSession.setUser(response.body());
+                        // dang nhap xong tao thu muc local cho user
+                        File folder = new File(mContext.get().getFilesDir(), String.valueOf(response.body().getId()));
+                        if (!folder.exists()) {
+                            folder.mkdirs();
                         }
+                        mCallback.doAnOrder(ORDER_LOGIN_SUCCESS);
                     } else {
                         try {
                             JSONObject body = new JSONObject(response.errorBody().string());
@@ -104,7 +96,7 @@ public class LoginFragment extends BaseAbstractFragment{
                 }
 
                 @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                public void onFailure(Call<UserDto> call, Throwable t) {
                     Util.getMessageDialog(mContext.get(),
                             t.getMessage(), null).show();
                     mLoginButton.setEnabled(true);

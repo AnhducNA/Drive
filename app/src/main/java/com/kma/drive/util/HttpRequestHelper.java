@@ -2,11 +2,14 @@ package com.kma.drive.util;
 
 
 import com.kma.drive.dto.FileDto;
+import com.kma.drive.dto.ResetPasswordDto;
+import com.kma.drive.dto.UserDto;
 import com.kma.drive.dto.UserLoginDto;
 import com.kma.drive.dto.UserRegisterDto;
 import com.kma.drive.dto.VerifyCodeDto;
 
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
@@ -51,13 +54,13 @@ public class HttpRequestHelper {
         call.enqueue(callback);
     }
 
-    public void login(UserLoginDto user, Callback<ResponseBody> callback) {
-        Call<ResponseBody> call = mApiService.postLogin(user);
+    public void login(UserLoginDto user, Callback<UserDto> callback) {
+        Call<UserDto> call = mApiService.postLogin(user);
         call.enqueue(callback);
     }
 
-    public void getAllFilesForUser(int userId, Callback<ResponseBody> callback) {
-        Call<ResponseBody> call = mApiService.getFilesByUserId(String.valueOf(userId));
+    public void getAllFilesForUser(int userId, Callback<List<FileDto>> callback) {
+        Call<List<FileDto>> call = mApiService.getFilesByUserId(String.valueOf(userId));
         call.enqueue(callback);
     }
 
@@ -66,8 +69,8 @@ public class HttpRequestHelper {
         call.enqueue(callback);
     }
 
-    public void saveFile(FileDto fileDto, Callback<ResponseBody> callback) {
-        Call<ResponseBody> call = mApiService.saveFile(fileDto);
+    public void saveFile(FileDto fileDto, Callback<List<FileDto>> callback) {
+        Call<List<FileDto>> call = mApiService.saveFile(fileDto);
         call.enqueue(callback);
     }
 
@@ -88,8 +91,18 @@ public class HttpRequestHelper {
         call.enqueue(callback);
     }
 
-    public void login(Callback<ResponseBody> callback) {
-        Call<ResponseBody> call = mApiService.login();
+    public void login(Callback<UserDto> callback) {
+        Call<UserDto> call = mApiService.login();
+        call.enqueue(callback);
+    }
+
+    public void getResetCode(String mail, Callback<ResponseBody> callback) {
+        Call<ResponseBody> call = mApiService.getResetCode(mail);
+        call.enqueue(callback);
+    }
+
+    public void resetPassword(ResetPasswordDto resetPasswordDto, Callback<ResponseBody> callback) {
+        Call<ResponseBody> call = mApiService.resetPassword(resetPasswordDto);
         call.enqueue(callback);
     }
 }

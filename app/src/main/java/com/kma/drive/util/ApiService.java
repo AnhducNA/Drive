@@ -2,9 +2,13 @@ package com.kma.drive.util;
 
 import com.kma.drive.common.Constant;
 import com.kma.drive.dto.FileDto;
+import com.kma.drive.dto.ResetPasswordDto;
+import com.kma.drive.dto.UserDto;
 import com.kma.drive.dto.UserLoginDto;
 import com.kma.drive.dto.UserRegisterDto;
 import com.kma.drive.dto.VerifyCodeDto;
+
+import java.util.List;
 
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
@@ -25,16 +29,16 @@ public interface ApiService {
     Call<ResponseBody> postVerifyCodeRegister(@Body VerifyCodeDto code);
 
     @POST("/api/authenticate")
-    Call<ResponseBody> postLogin(@Body UserLoginDto user);
+    Call<UserDto> postLogin(@Body UserLoginDto user);
 
     @GET("/api/file/files")
-    Call<ResponseBody> getFilesByUserId(@Query(Constant.PARAM_USER_ID) String userId);
+    Call<List<FileDto>> getFilesByUserId(@Query(Constant.PARAM_USER_ID) String userId);
 
     @POST("/api/file/download")
     Call<ResponseBody> downloadFileById(@Body FileDto fileDto);
 
     @POST("/api/file/save")
-    Call<ResponseBody> saveFile(@Body FileDto fileDto);
+    Call<List<FileDto>> saveFile(@Body FileDto fileDto);
 
     @DELETE("/api/file/delete")
     Call<ResponseBody> deleteFile(@Query(Constant.PARAM_FILE_ID) long fileId);
@@ -49,5 +53,11 @@ public interface ApiService {
                                  @Query(Constant.PARAM_SHARE_EMAIL) String email);
 
     @GET("/api/login")
-    Call<ResponseBody> login();
+    Call<UserDto> login();
+
+    @POST("api/get_reset_code")
+    Call<ResponseBody> getResetCode(@Body String mail);
+
+    @POST("api/reset_password")
+    Call<ResponseBody> resetPassword(@Body ResetPasswordDto resetPasswordDto);
 }

@@ -51,6 +51,7 @@
         app:layout_constraintTop_toBottomOf="@id/iv_avatar_register">
 
         <EditText
+            android:inputType="text"
             android:id="@+id/et_username_register"
             android:layout_width="@dimen/edit_text_width"
             android:layout_height="wrap_content"
@@ -64,6 +65,7 @@
             android:textColorHint="@color/gray" />
 
         <EditText
+            android:inputType="text"
             android:id="@+id/et_account_register"
             android:layout_width="@dimen/edit_text_width"
             android:layout_height="wrap_content"

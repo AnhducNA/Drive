@@ -96,16 +96,15 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
     private String mNewLocation; // bien nay chi dung trong mode move file
     private SharedPreferences mPreferences;
 
-    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_open_file);
 
         Intent intent = getIntent();
-        mOpenFile = intent.getParcelableExtra(EXTRA_FILE_OPEN, FileModel.class);
+        mOpenFile = (FileModel) intent.getExtras().get(EXTRA_FILE_OPEN);
         mCurrentReason = intent.getIntExtra(EXTRA_REASON_USE_ACTIVITY, REASON_OPEN_FILE);
-        mMovingFile = intent.getParcelableExtra(EXTRA_FILE_MOVING, FileModel.class);
+        mMovingFile = (FileModel) intent.getExtras().get(EXTRA_FILE_MOVING);
         mNewLocation = intent.getStringExtra(EXTRA_NEW_LOCATION);
         Log.d("MinhNTn", "onCreate: " + mNewLocation);
 
@@ -165,17 +164,16 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                 mMovingFile.setParentId(mOpenFile.getId());
                 mMovingFile.setLocation(mNewLocation);
                 mMovingFile.setDate(new Date(Calendar.getInstance().getTimeInMillis()));
-                mRequestHelper.saveFile(Util.convertToFileDto(mMovingFile), new Callback<ResponseBody>() {
+                mRequestHelper.saveFile(Util.convertToFileDto(mMovingFile), new Callback<List<FileDto>>() {
                     @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    public void onResponse(Call<List<FileDto>> call, Response<List<FileDto>> response) {
                         if (response.isSuccessful()) {
                             try {
-                                JSONArray array = new JSONArray(response.body().string());
-                                Util.updateDataChangedFromServer(array, mUserSession.getFiles());
+                                Util.updateDataChangedFromServer(response.body(), mUserSession.getFiles());
                                 Intent backIntent = new Intent(OpenFileActivity.this, FileExploreActivity.class);
                                 backIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                                 startActivity(backIntent);
-                            } catch (JSONException | IOException | ParseException e) {
+                            } catch (ParseException e) {
                                 // Loi
                             }
                         } else {
@@ -193,7 +191,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                     }
 
                     @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    public void onFailure(Call<List<FileDto>> call, Throwable t) {
 
                     }
                 });
@@ -296,7 +294,6 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                         if (!TextUtils.isEmpty(response.errorBody().string())) {
                             Util.getMessageDialog(OpenFileActivity.this, response.errorBody().string(), null).show();
                         }
-
                     } catch (IOException e) {
                         //
                     }
@@ -319,7 +316,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
     }
 
     @Override
-    public void doAnOrder(int order) {
+    public void doAnOrder(String order) {
 
     }
 
@@ -337,9 +334,9 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
         mFavoriteFunctionTextView.setOnClickListener(view -> {
             FileDto dtoFile = Util.convertToFileDto(currentFile);
             dtoFile.setFavorite(!dtoFile.isFavorite());
-            mRequestHelper.saveFile(dtoFile, new Callback<ResponseBody>() {
+            mRequestHelper.saveFile(dtoFile, new Callback<List<FileDto>>() {
                 @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                public void onResponse(Call<List<FileDto>> call, Response<List<FileDto>> response) {
                     if (response.isSuccessful()) {
                         currentFile.setFavorite(!currentFile.isFavorite());
                         if (currentFile.isFavorite()) {
@@ -364,7 +361,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                 }
 
                 @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                public void onFailure(Call<List<FileDto>> call, Throwable t) {
 
                 }
             });
@@ -389,9 +386,9 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                             dtoFile.setFileName(filename);
                             Date date = new Date(Calendar.getInstance().getTimeInMillis());
                             dtoFile.setDate(date.toString());
-                            mRequestHelper.saveFile(dtoFile, new Callback<ResponseBody>() {
+                            mRequestHelper.saveFile(dtoFile, new Callback<List<FileDto>>() {
                                 @Override
-                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                public void onResponse(Call<List<FileDto>> call, Response<List<FileDto>> response) {
                                     if (response.isSuccessful()) {
                                         currentFile.setFileName((String) object);
                                         currentFile.setDate(date);
@@ -414,7 +411,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                                 }
 
                                 @Override
-                                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                public void onFailure(Call<List<FileDto>> call, Throwable t) {
                                     //TODO
                                 }
                             });

@@ -17,8 +17,8 @@ import com.kma.drive.util.HttpRequestHelper;
 import java.lang.ref.WeakReference;
 
 public abstract class BaseAbstractFragment extends Fragment{
-    protected WeakReference<Context> mContext;
 
+    protected WeakReference<Context> mContext;
     protected FragmentCallback mCallback;
     protected HttpRequestHelper mRequestHelper;
     protected UserSession mUserSession;

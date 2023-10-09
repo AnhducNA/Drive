@@ -29,6 +29,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,7 +53,6 @@ public class HomeAppFragment extends BaseAbstractFragment implements AwareDataSt
         return R.layout.home_app_fragment;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void doOnViewCreated(View rootView, Bundle bundle) {
         mRecyclerView = rootView.findViewById(R.id.home_recyclerView);
@@ -82,7 +82,6 @@ public class HomeAppFragment extends BaseAbstractFragment implements AwareDataSt
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onDataLoadingFinished() {
         getRecentFiles();
@@ -112,13 +111,21 @@ public class HomeAppFragment extends BaseAbstractFragment implements AwareDataSt
         onDataStateChanged();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onDataCreated(FileModel fileModel) {
         mRecentFiles.add(fileModel);
         if (mRecentFiles.size() > Constant.MAX_RECENT_FILE_DISPLAY) {
             mRecentFiles.remove(4);
-            mRecentFiles.stream().sorted(Comparator.comparing(FileModel::getDate).reversed());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mRecentFiles.stream().sorted(Comparator.comparing(FileModel::getDate).reversed());
+            } else {
+                Collections.sort(mRecentFiles, new Comparator<FileModel>() {
+                    @Override
+                    public int compare(FileModel fileModel, FileModel t1) {
+                        return fileModel.getDate().compareTo(t1.getDate());
+                    }
+                });
+            }
         }
         onDataStateChanged();
     }
@@ -144,13 +151,28 @@ public class HomeAppFragment extends BaseAbstractFragment implements AwareDataSt
 
         return null;
     }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private void getRecentFiles() {
         mRecentFiles.clear();
-        List<FileModel> temp = mUserSession.getFiles().stream().filter(fileModel -> (!fileModel.getType().equals(Constant.FileType.FOLDER)))
-                .sorted(Comparator.comparing(FileModel::getDate).reversed())
-                        .collect(Collectors.toList());
+        List<FileModel> temp = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            temp = mUserSession.getFiles().stream().filter(fileModel -> (!fileModel.getType().equals(Constant.FileType.FOLDER)))
+                    .sorted(Comparator.comparing(FileModel::getDate).reversed())
+                            .collect(Collectors.toList());
+        } else {
+            // TODO loc file
+           temp = new ArrayList<>();
+           for (FileModel file: mUserSession.getFiles()) {
+               if (!file.getType().equals(Constant.FileType.FOLDER)) {
+                   temp.add(file);
+               }
+           }
+            Collections.sort(temp, new Comparator<FileModel>() {
+                @Override
+                public int compare(FileModel fileModel, FileModel t1) {
+                    return fileModel.getDate().compareTo(t1.getDate());
+                }
+            });
+        }
         for (int i = 0; i < Constant.MAX_RECENT_FILE_DISPLAY; i++) {
             try {
                 mRecentFiles.add(temp.get(i));

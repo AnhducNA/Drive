@@ -33,7 +33,6 @@ public class SharedFilesFragment extends BaseAbstractFragment implements AwareDa
         return R.layout.shared_files_fragment;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void doOnViewCreated(View view, Bundle bundle) {
         mEmptyFolderLinearLayout = view.findViewById(R.id.layout_empty_folder);
@@ -57,14 +56,21 @@ public class SharedFilesFragment extends BaseAbstractFragment implements AwareDa
         setVisibleEmptyView();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private void getSharedFiles() {
         mSharedFiles.clear();
-        mUserSession.getFiles().stream().forEach(fileDto -> {
-            if (fileDto.isShared()) {
-                mSharedFiles.add(fileDto);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            mUserSession.getFiles().stream().forEach(fileDto -> {
+                if (fileDto.isShared()) {
+                    mSharedFiles.add(fileDto);
+                }
+            });
+        } else {
+            for (FileModel fileModel: mUserSession.getFiles()) {
+                if (fileModel.isShared()) {
+                    mSharedFiles.add(fileModel);
+                }
             }
-        });
+        }
         if (mFileAdapter != null) {
             mFileAdapter.notifyDataSetChanged();
         }
@@ -78,7 +84,6 @@ public class SharedFilesFragment extends BaseAbstractFragment implements AwareDa
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onDataLoadingFinished() {
         getSharedFiles();
