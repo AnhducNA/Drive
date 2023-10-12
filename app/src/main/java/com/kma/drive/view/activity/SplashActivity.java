@@ -43,7 +43,7 @@ public class SplashActivity extends AppCompatActivity {
         mPreferences = getSharedPreferences(Constant.SHARE_PREF_NAME, Context.MODE_PRIVATE);
         String token = mPreferences.getString(Constant.JWT, null);
 
-        // Check neu jwt khong con thi dua vao man login luon
+        // Check neu jwt khong con thi dua vao man login
         if (token == null) {
             startLoginActivity();
         } else {

@@ -76,6 +76,10 @@ public class RegisterFragment extends BaseAbstractFragment{
         });
         mAvatar.setOnClickListener(view1 -> getLocalImage());
         mRegisterButton.setOnClickListener(view1 -> register());
+        // avatar mac dinh
+        Bitmap avatar = BitmapFactory.decodeResource(mContext.get().getResources(),
+                R.drawable.baseline_arrow_back_24);
+        mAvatarBase64Temp = Util.convertBitmapToBase64(avatar);
     }
 
     private void getLocalImage() {
@@ -224,8 +228,6 @@ public class RegisterFragment extends BaseAbstractFragment{
                                 } catch (IOException | JSONException e) {
 //                                    throw new RuntimeException(e);
                                 }
-                            } else {
-                                //TODO trong truong hop fail
                             }
                         }
 

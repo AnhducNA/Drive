@@ -31,10 +31,6 @@ public class LoginActivity extends AppCompatActivity implements FragmentCallback
 
         mLoginFragment = new LoginFragment();
         mLoginFragment.setCallback(LoginActivity.this);
-        mRegisterFragment = new RegisterFragment();
-        mRegisterFragment.setCallback(LoginActivity.this);
-        mForgetPassFragment = new ForgetPasswordFragment();
-        mForgetPassFragment.setCallback(this);
 
         transactionFragment(R.id.main_container, mLoginFragment
                 , false, true
@@ -74,6 +70,8 @@ public class LoginActivity extends AppCompatActivity implements FragmentCallback
     public void doAnOrder(String order) {
         switch (order) {
             case LoginFragment.ORDER_REGISTER_ACCOUNT: {
+                mRegisterFragment = new RegisterFragment();
+                mRegisterFragment.setCallback(LoginActivity.this);
                 transactionFragment(R.id.main_container,
                         mRegisterFragment, true, true,
                         R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_left, R.anim.exit_to_right);
@@ -92,6 +90,8 @@ public class LoginActivity extends AppCompatActivity implements FragmentCallback
                 break;
             }
             case LoginFragment.ORDER_FORGET_PASS: {
+                mForgetPassFragment = new ForgetPasswordFragment();
+                mForgetPassFragment.setCallback(this);
                 transactionFragment(R.id.main_container,
                         mForgetPassFragment, true, true,
                         R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_left, R.anim.exit_to_right);

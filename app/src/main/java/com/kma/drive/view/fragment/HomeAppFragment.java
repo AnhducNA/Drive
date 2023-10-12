@@ -28,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -145,6 +146,7 @@ public class HomeAppFragment extends BaseAbstractFragment implements AwareDataSt
     public FileModel getFileById(long id) {
         for (FileModel fileDto: mRecentFiles) {
             if (fileDto.getId() == id) {
+                fileDto.setDate(new Date(System.currentTimeMillis()));
                 return fileDto;
             }
         }

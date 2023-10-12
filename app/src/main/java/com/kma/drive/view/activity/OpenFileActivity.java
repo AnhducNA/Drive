@@ -397,11 +397,12 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                                         mUserSession.updateStrFile(currentFile, Constant.ACTION_CHANGE_NAME);
                                     } else {
                                         try {
-                                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                            String msg = response.errorBody().string();
+                                            if (msg.equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
                                                 doOnValidationExpired();
                                             }
-                                            if (!TextUtils.isEmpty(response.errorBody().string())) {
-                                                Util.getMessageDialog(OpenFileActivity.this, response.errorBody().string(), null).show();
+                                            if (!TextUtils.isEmpty(msg )) {
+                                                Util.getMessageDialog(OpenFileActivity.this, msg, null).show();
                                             }
 
                                         } catch (IOException e) {
@@ -432,6 +433,9 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                         FileUtil.deleteFile(currentFile, mUserSession.getFiles());
                         onDataDeleted(currentFile);
                         mUserSession.updateStrFile(currentFile, Constant.ACTION_DELETE);
+                        // Cap nhat lai dung luong
+                        long storage = mUserSession.getUser().getStorageUsage();
+                        mUserSession.getUser().setStorageUsage(storage - currentFile.getSize());
                     } else {
                         try {
                             if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
@@ -486,11 +490,12 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                                                 getString(R.string.message_share_file_success), null).show();
                                     } else {
                                         try {
-                                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                            String msg = response.errorBody().string();
+                                            if (msg.equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
                                                 doOnValidationExpired();
                                             }
-                                            if (!TextUtils.isEmpty(response.errorBody().string())) {
-                                                Util.getMessageDialog(OpenFileActivity.this, response.errorBody().string(), null).show();
+                                            if (!TextUtils.isEmpty(msg)) {
+                                                Util.getMessageDialog(OpenFileActivity.this, msg, null).show();
                                             }
 
                                         } catch (IOException e) {

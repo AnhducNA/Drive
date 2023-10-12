@@ -99,6 +99,8 @@ public class ForgetPasswordFragment extends BaseAbstractFragment{
                         try {
                             String msg = response.errorBody().string();
                             Util.getMessageDialog(mContext.get(), msg, null).show();
+                            buttonConfirm.setEnabled(true);
+                            buttonCancel.setEnabled(true);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
