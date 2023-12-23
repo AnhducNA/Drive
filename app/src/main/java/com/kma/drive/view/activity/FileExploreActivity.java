@@ -191,7 +191,7 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
         mSearchAutoCompleteTextView.setAdapter(mSearchAdapter);
         mSearchAutoCompleteTextView.setOnItemClickListener((adapterView, view, i, l) -> {
             String fileName = (String) adapterView.getItemAtPosition(i);
-            final FileModel fileDto = mUserSession.getFileModelByFileName(fileName);
+            final FileModel fileDto = mUserSession.getFileModelByFileName(fileName, i);
             if (fileDto == null) {
                 //TODO do something here
                 return;
@@ -424,11 +424,12 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                         ((AwareDataStateChange) fragment).onDataStateChanged();
                     } else {
                         try {
-                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                            String msg = response.errorBody().string();
+                            if (msg.equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
                                 doOnValidationExpired();
                             }
-                            if (!TextUtils.isEmpty(response.errorBody().string())) {
-                                Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                            if (!TextUtils.isEmpty(msg)) {
+                                Util.getMessageDialog(FileExploreActivity.this, msg, null).show();
                             }
                         } catch (IOException e) {
                             //
@@ -513,11 +514,12 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                         mUserSession.getUser().setStorageUsage(storage - currentFile.getSize());
                     } else {
                         try {
-                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                            String msg = response.errorBody().string();
+                            if (msg.equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
                                 doOnValidationExpired();
                             }
-                            if (!TextUtils.isEmpty(response.errorBody().string())) {
-                                Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                            if (!TextUtils.isEmpty(msg)) {
+                                Util.getMessageDialog(FileExploreActivity.this, msg, null).show();
                             }
 
                         } catch (IOException e) {
@@ -627,11 +629,12 @@ public class FileExploreActivity extends AppCompatActivity implements BottomNavi
                                                     notifySearchDataChanged(temp, Constant.ACTION_CREATE);
                                                 } else {
                                                     try {
-                                                        if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                                        String msg = response.errorBody().string();
+                                                        if (msg.equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
                                                             doOnValidationExpired();
                                                         }
-                                                        if (!TextUtils.isEmpty(response.errorBody().string())) {
-                                                            Util.getMessageDialog(FileExploreActivity.this, response.errorBody().string(), null).show();
+                                                        if (!TextUtils.isEmpty(msg)) {
+                                                            Util.getMessageDialog(FileExploreActivity.this, msg, null).show();
                                                         }
 
                                                     } catch (IOException e) {

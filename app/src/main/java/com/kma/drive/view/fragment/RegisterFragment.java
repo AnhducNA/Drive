@@ -78,8 +78,10 @@ public class RegisterFragment extends BaseAbstractFragment{
         mRegisterButton.setOnClickListener(view1 -> register());
         // avatar mac dinh
         Bitmap avatar = BitmapFactory.decodeResource(mContext.get().getResources(),
-                R.drawable.baseline_arrow_back_24);
-        mAvatarBase64Temp = Util.convertBitmapToBase64(avatar);
+                R.drawable.baseline_account_circle_24);
+        if (avatar != null) {
+            mAvatarBase64Temp = Util.convertBitmapToBase64(avatar);
+        }
     }
 
     private void getLocalImage() {

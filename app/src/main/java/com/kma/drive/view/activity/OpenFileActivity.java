@@ -164,6 +164,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                 mMovingFile.setParentId(mOpenFile.getId());
                 mMovingFile.setLocation(mNewLocation);
                 mMovingFile.setDate(new Date(Calendar.getInstance().getTimeInMillis()));
+                mMovingFile.setDriveParentFolderId(mOpenFile.getDriveFileId());
                 mRequestHelper.saveFile(Util.convertToFileDto(mMovingFile), new Callback<List<FileDto>>() {
                     @Override
                     public void onResponse(Call<List<FileDto>> call, Response<List<FileDto>> response) {
@@ -178,11 +179,12 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                             }
                         } else {
                             try {
-                                if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                                String msg = response.errorBody().string();
+                                if (msg.equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
                                     doOnValidationExpired();
                                 }
-                                if (!TextUtils.isEmpty(response.errorBody().string())) {
-                                    Util.getMessageDialog(OpenFileActivity.this, response.errorBody().string(), null).show();
+                                if (!TextUtils.isEmpty(msg)) {
+                                    Util.getMessageDialog(OpenFileActivity.this, msg, null).show();
                                 }
                             } catch (IOException e) {
                                 //
@@ -288,11 +290,12 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                     }
                 } else {
                     try {
-                        if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                        String msg = response.errorBody().string();
+                        if (msg.equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
                             doOnValidationExpired();
                         }
-                        if (!TextUtils.isEmpty(response.errorBody().string())) {
-                            Util.getMessageDialog(OpenFileActivity.this, response.errorBody().string(), null).show();
+                        if (!TextUtils.isEmpty(msg)) {
+                            Util.getMessageDialog(OpenFileActivity.this, msg, null).show();
                         }
                     } catch (IOException e) {
                         //
@@ -347,11 +350,12 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                         onDataStateChanged();
                     } else {
                         try {
-                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                            String msg = response.errorBody().string();
+                            if (msg.equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
                                 doOnValidationExpired();
                             }
-                            if (!TextUtils.isEmpty(response.errorBody().string())) {
-                                Util.getMessageDialog(OpenFileActivity.this, response.errorBody().string(), null).show();
+                            if (!TextUtils.isEmpty(msg)) {
+                                Util.getMessageDialog(OpenFileActivity.this, msg, null).show();
                             }
 
                         } catch (IOException e) {
@@ -438,11 +442,12 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                         mUserSession.getUser().setStorageUsage(storage - currentFile.getSize());
                     } else {
                         try {
-                            if (response.errorBody().string().equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
+                            String msg = response.errorBody().string();
+                            if (msg.equals(Constant.MESSAGE_AUTHENTICATION_FAIL)) {
                                 doOnValidationExpired();
                             }
-                            if (!TextUtils.isEmpty(response.errorBody().string())) {
-                                Util.getMessageDialog(OpenFileActivity.this, response.errorBody().string(), null).show();
+                            if (!TextUtils.isEmpty(msg)) {
+                                Util.getMessageDialog(OpenFileActivity.this, msg, null).show();
                             }
 
                         } catch (IOException e) {

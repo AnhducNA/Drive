@@ -279,7 +279,9 @@ public class Util {
                 fileDto.getLocation(),
                 fileDto.getParentId(),
                 false,
-                fileDto.getSize());
+                fileDto.getSize(),
+                fileDto.getDriveParentFolderId(),
+                fileDto.getDriveFileId());
     }
 
     public static FileDto convertToFileDto(FileModel fileModel) {
@@ -291,7 +293,9 @@ public class Util {
                 fileModel.getOwner(),
                 fileModel.getLocation(),
                 fileModel.getParentId(),
-                fileModel.getSize());
+                fileModel.getSize(),
+                fileModel.getDriveParentFolderId(),
+                fileModel.getDriveFileId());
     }
 
     public static File convertBitmapToFile(Context context, Bitmap bitmap, String name) throws IOException {

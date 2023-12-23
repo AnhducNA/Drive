@@ -13,6 +13,8 @@ public class FileDto {
     public static final String LOCATION = "location";
     public static final String PARENT_ID = "parentId";
     public static final String SIZE = "size";
+    public static final String DRIVE_PARENT_FOLDER_ID = "driveParentFolderId";
+    public static final String DRIVE_FILE_ID = "driveFileId";
 
     @SerializedName(ID)
     @Expose
@@ -42,7 +44,15 @@ public class FileDto {
     @Expose
     private long size;
 
-    public FileDto(Long id, String fileName, String date, boolean favorite, String type, long owner, String location, long parentId, long size) {
+    @SerializedName(DRIVE_PARENT_FOLDER_ID)
+    @Expose
+    private String driveParentFolderId;
+
+    @SerializedName(DRIVE_FILE_ID)
+    @Expose
+    private String driveFileId;
+
+    public FileDto(Long id, String fileName, String date, boolean favorite, String type, long owner, String location, long parentId, long size, String driveParentFolderId, String driveFileId) {
         this.id = id;
         this.fileName = fileName;
         this.date = date;
@@ -52,6 +62,8 @@ public class FileDto {
         this.location = location;
         this.parentId = parentId;
         this.size = size;
+        this.driveParentFolderId = driveParentFolderId;
+        this.driveFileId = driveFileId;
     }
 
     public Long getId() {
@@ -128,5 +140,21 @@ public class FileDto {
 
     public void setSize(int size) {
         this.size = size;
+    }
+
+    public String getDriveParentFolderId() {
+        return driveParentFolderId;
+    }
+
+    public void setDriveParentFolderId(String driveParentFolderId) {
+        this.driveParentFolderId = driveParentFolderId;
+    }
+
+    public String getDriveFileId() {
+        return driveFileId;
+    }
+
+    public void setDriveFileId(String driveFileId) {
+        this.driveFileId = driveFileId;
     }
 }

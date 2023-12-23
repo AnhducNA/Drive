@@ -22,8 +22,10 @@ public class FileModel implements Parcelable {
     private long parentId;
     private boolean shared;
     private long size;
+    private String driveParentFolderId;
+    private String driveFileId;
 
-    public FileModel(long id, String fileName, Date date, boolean favorite, String type, long owner, String location, long parentId, boolean shared, long size) {
+    public FileModel(long id, String fileName, Date date, boolean favorite, String type, long owner, String location, long parentId, boolean shared, long size, String driveParentFolderId, String driveFileId) {
         this.id = id;
         this.fileName = fileName;
         this.date = date;
@@ -34,6 +36,8 @@ public class FileModel implements Parcelable {
         this.parentId = parentId;
         this.shared = shared;
         this.size = size;
+        this.driveParentFolderId = driveParentFolderId;
+        this.driveFileId = driveFileId;
     }
 
     protected FileModel(Parcel in) {
@@ -51,6 +55,8 @@ public class FileModel implements Parcelable {
         parentId = in.readLong();
         shared = in.readByte() != 0;
         size = in.readLong();
+        driveParentFolderId = in.readString();
+        driveFileId = in.readString();
     }
 
     public static final Creator<FileModel> CREATOR = new Creator<FileModel>() {
@@ -150,6 +156,22 @@ public class FileModel implements Parcelable {
         return 0;
     }
 
+    public String getDriveParentFolderId() {
+        return driveParentFolderId;
+    }
+
+    public String getDriveFileId() {
+        return driveFileId;
+    }
+
+    public void setDriveParentFolderId(String driveParentFolderId) {
+        this.driveParentFolderId = driveParentFolderId;
+    }
+
+    public void setDriveFileId(String driveFileId) {
+        this.driveFileId = driveFileId;
+    }
+
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int i) {
         parcel.writeLong(id);
@@ -162,5 +184,7 @@ public class FileModel implements Parcelable {
         parcel.writeLong(parentId);
         parcel.writeByte((byte) (shared ? 1 : 0));
         parcel.writeLong(size);
+        parcel.writeString(driveParentFolderId);
+        parcel.writeString(driveFileId);
     }
 }

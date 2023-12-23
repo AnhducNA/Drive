@@ -60,4 +60,7 @@ public interface ApiService {
 
     @POST("api/reset_password")
     Call<ResponseBody> resetPassword(@Body ResetPasswordDto resetPasswordDto);
+
+    @POST("/api/file/drive/save")
+    Call<List<FileDto>> saveDriveFile(@Body FileDto fileDto, @Part MultipartBody.Part file);
 }
