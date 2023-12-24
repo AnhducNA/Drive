@@ -14,6 +14,7 @@ import com.kma.drive.callback.Function;
 import com.kma.drive.common.Constant;
 import com.kma.drive.dto.UserDto;
 import com.kma.drive.session.UserSession;
+import com.kma.drive.util.FileUtil;
 import com.kma.drive.util.HttpRequestHelper;
 import com.kma.drive.util.Util;
 import com.kma.drive.view.fragment.LoginFragment;
@@ -38,6 +39,9 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        // Tao file fake dung ve sau
+        FileUtil.createFakeFileForRequestOneTime(this);
 
         // Check jwt dang nhap xem da het han hay chua thi moi can dang nhap lai
         mPreferences = getSharedPreferences(Constant.SHARE_PREF_NAME, Context.MODE_PRIVATE);

@@ -37,11 +37,17 @@ public interface ApiService {
     @POST("/api/file/download")
     Call<ResponseBody> downloadFileById(@Body FileDto fileDto);
 
+    @GET("/api/file/drive/download")
+    Call<ResponseBody> downloadDriveFileById(@Query(Constant.PARAM_FILE_ID) Long fileId);
+
     @POST("/api/file/save")
     Call<List<FileDto>> saveFile(@Body FileDto fileDto);
 
     @DELETE("/api/file/delete")
     Call<ResponseBody> deleteFile(@Query(Constant.PARAM_FILE_ID) long fileId);
+
+    @DELETE("/api/file/drive/delete")
+    Call<ResponseBody> deleteDriveFile(@Query(Constant.PARAM_FILE_ID) long fileId);
 
     @Multipart
     @POST("/api/file/upload")
@@ -61,6 +67,7 @@ public interface ApiService {
     @POST("api/reset_password")
     Call<ResponseBody> resetPassword(@Body ResetPasswordDto resetPasswordDto);
 
+    @Multipart
     @POST("/api/file/drive/save")
-    Call<List<FileDto>> saveDriveFile(@Body FileDto fileDto, @Part MultipartBody.Part file);
+    Call<List<FileDto>> saveDriveFile(@Query("object_file_str") String fileDto, @Part MultipartBody.Part file);
 }

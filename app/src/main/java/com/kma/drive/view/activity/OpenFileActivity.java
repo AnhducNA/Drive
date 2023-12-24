@@ -165,7 +165,9 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                 mMovingFile.setLocation(mNewLocation);
                 mMovingFile.setDate(new Date(Calendar.getInstance().getTimeInMillis()));
                 mMovingFile.setDriveParentFolderId(mOpenFile.getDriveFileId());
-                mRequestHelper.saveFile(Util.convertToFileDto(mMovingFile), new Callback<List<FileDto>>() {
+                Log.d("MinhNTn", "onCreate: " + mOpenFile.getDriveFileId() + ", " + mOpenFile.getDriveParentFolderId());
+                Log.d("MinhNTn", "onCreate: " + mMovingFile.getDriveFileId() + ", " + mMovingFile.getDriveParentFolderId());
+                mRequestHelper.saveDriveFile(Util.convertToFileDto(mMovingFile), FileUtil.getFakeFile(), new Callback<List<FileDto>>() {
                     @Override
                     public void onResponse(Call<List<FileDto>> call, Response<List<FileDto>> response) {
                         if (response.isSuccessful()) {
@@ -193,9 +195,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                     }
 
                     @Override
-                    public void onFailure(Call<List<FileDto>> call, Throwable t) {
-
-                    }
+                    public void onFailure(Call<List<FileDto>> call, Throwable t) {}
                 });
             });
         }
@@ -265,7 +265,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
         //TODO check file co trong ay khong thi moi tai, khong thi thoi
         fileModel.setDate(new Date(Calendar.getInstance().getTimeInMillis()));
         FileDto fileDto = Util.convertToFileDto(fileModel);
-        mRequestHelper.downloadFile(fileDto, new Callback<ResponseBody>() {
+        mRequestHelper.downloadDriveFile(fileDto.getId(), new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
@@ -337,7 +337,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
         mFavoriteFunctionTextView.setOnClickListener(view -> {
             FileDto dtoFile = Util.convertToFileDto(currentFile);
             dtoFile.setFavorite(!dtoFile.isFavorite());
-            mRequestHelper.saveFile(dtoFile, new Callback<List<FileDto>>() {
+            mRequestHelper.saveDriveFile(dtoFile, FileUtil.getFakeFile(), new Callback<List<FileDto>>() {
                 @Override
                 public void onResponse(Call<List<FileDto>> call, Response<List<FileDto>> response) {
                     if (response.isSuccessful()) {
@@ -365,9 +365,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                 }
 
                 @Override
-                public void onFailure(Call<List<FileDto>> call, Throwable t) {
-
-                }
+                public void onFailure(Call<List<FileDto>> call, Throwable t) {}
             });
             mBottomSheetDialog.hide();
         });
@@ -390,7 +388,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                             dtoFile.setFileName(filename);
                             Date date = new Date(Calendar.getInstance().getTimeInMillis());
                             dtoFile.setDate(date.toString());
-                            mRequestHelper.saveFile(dtoFile, new Callback<List<FileDto>>() {
+                            mRequestHelper.saveDriveFile(dtoFile, FileUtil.getFakeFile(), new Callback<List<FileDto>>() {
                                 @Override
                                 public void onResponse(Call<List<FileDto>> call, Response<List<FileDto>> response) {
                                     if (response.isSuccessful()) {
@@ -430,7 +428,7 @@ public class OpenFileActivity extends AppCompatActivity implements FragmentCallb
                 Util.getMessageDialog(OpenFileActivity.this, getString(R.string.message_no_permission), null).show();
                 return;
             }
-            mRequestHelper.deleteFile(currentFile.getId(), new Callback<ResponseBody>() {
+            mRequestHelper.deleteDriveFile(currentFile.getId(), new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {

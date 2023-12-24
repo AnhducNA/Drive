@@ -16,6 +16,8 @@ import java.io.OutputStream;
 import java.util.List;
 
 public class FileUtil {
+    private static String dataDirPath = "";
+
     /**
      * Xoa file hoac folder
      * @param fileToDel
@@ -165,5 +167,23 @@ public class FileUtil {
             }
         }
         list.remove(file);
+    }
+
+    public static void createFakeFileForRequestOneTime(Context context) {
+        dataDirPath = context.getFilesDir().getPath();
+        File file = new File(dataDirPath, "fake.txt");
+
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                //Ignore
+            }
+        }
+    }
+
+    public static File getFakeFile() {
+        File file = new File(dataDirPath, "fake.txt");
+        return file;
     }
 }

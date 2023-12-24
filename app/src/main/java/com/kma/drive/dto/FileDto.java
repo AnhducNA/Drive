@@ -1,5 +1,7 @@
 package com.kma.drive.dto;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -156,5 +158,21 @@ public class FileDto {
 
     public void setDriveFileId(String driveFileId) {
         this.driveFileId = driveFileId;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return id + "," +
+                fileName + "," +
+                date + "," +
+                favorite + "," +
+                type + "," +
+                owner + "," +
+                location + "," +
+                parentId + "," +
+                size + "," +
+                driveParentFolderId + "," +
+                driveFileId;
     }
 }

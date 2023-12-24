@@ -69,6 +69,11 @@ public class HttpRequestHelper {
         call.enqueue(callback);
     }
 
+    public void downloadDriveFile(Long fileId, Callback<ResponseBody> callback) {
+        Call<ResponseBody> call = mApiService.downloadDriveFileById(fileId);
+        call.enqueue(callback);
+    }
+
     public void saveFile(FileDto fileDto, Callback<List<FileDto>> callback) {
         Call<List<FileDto>> call = mApiService.saveFile(fileDto);
         call.enqueue(callback);
@@ -77,13 +82,18 @@ public class HttpRequestHelper {
     public void saveDriveFile(FileDto fileDto, File file, Callback<List<FileDto>> callback) {
         RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
         MultipartBody.Part part = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
-        Call<List<FileDto>> call = mApiService.saveDriveFile(fileDto, part);
+        Call<List<FileDto>> call = mApiService.saveDriveFile(fileDto.toString(), part);
 
         call.enqueue(callback);
     }
 
     public void deleteFile(long fileId, Callback<ResponseBody> callback) {
         Call<ResponseBody> call = mApiService.deleteFile(fileId);
+        call.enqueue(callback);
+    }
+
+    public void deleteDriveFile(long fileId, Callback<ResponseBody> callback) {
+        Call<ResponseBody> call = mApiService.deleteDriveFile(fileId);
         call.enqueue(callback);
     }
 
